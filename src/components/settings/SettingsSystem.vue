@@ -40,7 +40,7 @@
         v-model="settings.system.autoStartEnabled"
         class="toggle toggle-primary"
     />
-    <p class="label">{{ t('settings.system.autoStart.hint') }}</p>
+    <p class="label">{{ t('settings.system.autoStart.hint', { appName: t('about.appName') }) }}</p>
     <label v-if="!isMac" class="font-semibold mt-2" for="autoStartMinimised">
       {{ t('settings.system.autoStartMinimised.label.windows') }}
     </label>

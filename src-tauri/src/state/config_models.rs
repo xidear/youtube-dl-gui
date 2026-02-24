@@ -112,7 +112,8 @@ impl Default for OutputSettings {
       add_metadata: true,
       add_thumbnail: true,
       download_dir: None,
-      file_name_template: "%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s-%(acodec)s).%(ext)s".into(),
+      file_name_template: "%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s-%(acodec)s).%(ext)s"
+        .into(),
       audio_file_name_template: "%(title).200s-(%(abr)dk-%(acodec)s).%(ext)s".into(),
       restrict_filenames: false,
     }

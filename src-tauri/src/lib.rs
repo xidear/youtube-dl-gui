@@ -104,6 +104,10 @@ pub fn run() {
       restore_main_window(handle);
       track_main_window(handle);
       setup_close_behaviour(handle);
+      // show main window immediately so user sees "正在准备…" while frontend initialises
+      if let Some(w) = handle.get_webview_window("main") {
+        let _ = w.show();
+      }
 
       // setup tray
       handle.manage(TrayState {

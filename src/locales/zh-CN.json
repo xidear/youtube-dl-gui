@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "正在准备…"
+  },
   "common": {
     "download": "下载",
     "save": "保存",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "登录时启动",
-        "hint": "登录时自动启动 Open Video Downloader。"
+        "hint": "登录时自动启动{appName}。"
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "宾纳瑞视频下载器",
     "title": "关于",
     "credit": "由 jely2002 与贡献者用 ❤ 制作",
     "poweredBy": "采用开放源代码:",

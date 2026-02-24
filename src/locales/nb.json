@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "Forbereder…"
+  },
   "common": {
     "download": "Last ned",
     "save": "Lagre",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "Start ved pålogging",
-        "hint": "Start Open Video Downloader automatisk når du logger på."
+        "hint": "Start {appName} automatisk når du logger på."
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "Binnarui Video Downloader",
     "title": "Om",
     "credit": "Laget med ❤ av jely2002 & bidragsytere",
     "poweredBy": "Drevet av åpen kildekode:",

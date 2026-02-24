@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ToolSource } from './sources.ts';
 import { fetchSources, TOOL_LICENSES } from './sources.ts';
+import { getTauriAppConfig } from './app-config.ts';
 
 const OUTPUT_DIR = 'licenses';
 const NPM_FILE = join(OUTPUT_DIR, 'licenses-npm.json');
@@ -33,8 +34,9 @@ async function main() {
   const npm = generateNpmLicenses();
   const externalTools = await generateExternalToolsSection();
 
+  const productName = getTauriAppConfig().productName;
   const content = [
-    'Open Video Downloader – Third-Party Licenses',
+    `${productName} – Third-Party Licenses`,
     '===========================================',
     '',
     externalTools,

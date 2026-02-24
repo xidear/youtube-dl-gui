@@ -1,4 +1,4 @@
-import { createApp, Ref } from 'vue';
+import { createApp, Ref, ref } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import './app.css';
@@ -23,7 +23,9 @@ import { useMediaStore } from './stores/media/media.ts';
 
 const pinia = createPinia();
 pinia.use(createSentryPiniaPlugin());
+const appReady = ref(false);
 const app = createApp(App);
+app.provide('appReady', appReady);
 
 createSentry(app);
 
@@ -53,15 +55,21 @@ if (import.meta.hot) {
 const settingsStore = useSettingsStore();
 const preferencesStore = usePreferencesStore();
 
-initStores().catch((e) => {
-  console.error(e);
-}).finally(() => {
-  void invoke('app_ready');
-  if (!__E2E__) {
-    startWindowWatcher();
-  }
-  app.mount('#app');
-});
+// Mount immediately so user sees "正在准备…"; init stores in background then show main UI
+app.mount('#app');
+initStores()
+  .catch((e) => {
+    console.error(e);
+  })
+  .finally(() => {
+    const el = document.getElementById('preparing');
+    if (el) el.style.display = 'none';
+    appReady.value = true;
+    void invoke('app_ready');
+    if (!__E2E__) {
+      startWindowWatcher();
+    }
+  });
 
 async function initStores(): Promise<void> {
   try {

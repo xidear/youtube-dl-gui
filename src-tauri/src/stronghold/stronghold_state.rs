@@ -8,7 +8,7 @@ use tauri_plugin_keyring::KeyringExt;
 use tauri_plugin_stronghold::stronghold::Stronghold;
 
 pub const CLIENT: &[u8] = b"ovd";
-const KR_SERVICE: &str = "com.jelleglebbeek.youtube-dl-gui";
+const KR_SERVICE: &str = env!("TAURI_APP_IDENTIFIER");
 const KR_ACCOUNT: &str = "master_key";
 
 #[derive(Debug, Default, Clone)]

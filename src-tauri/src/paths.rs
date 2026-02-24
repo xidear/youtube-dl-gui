@@ -95,9 +95,17 @@ impl PathsManager {
       .path()
       .app_data_dir()
       .expect("failed to resolve app data dir");
+    let identifier = app.config().identifier.as_str();
+    // Use identifier as folder name (ASCII, no spaces/special chars) instead of productName to avoid
+    // paths like AppData\Local\宾纳瑞视频下载器 (Binnarui Video Downloader)
+    // non-ASCII/special chars in path (e.g. Windows AppData\Local\宾纳瑞视频下载器 (...))
+    let app_data_dir_safe = app_data_dir
+      .parent()
+      .expect("app data dir has parent")
+      .join(identifier);
     Self::resolve_app_dir_with(
-      &app.config().identifier,
-      app_data_dir,
+      &identifier,
+      app_data_dir_safe,
       Self::resolve_executable_path(),
       Self::resolve_snap_user_data_dir(),
     )

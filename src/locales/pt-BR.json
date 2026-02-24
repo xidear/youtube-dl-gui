@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "Preparando…"
+  },
   "common": {
     "download": "Baixar",
     "save": "Salvar",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "Iniciar ao entrar",
-        "hint": "Inicia o Open Video Downloader automaticamente ao entrar."
+        "hint": "Inicia o {appName} automaticamente ao entrar."
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "Binnarui Video Downloader",
     "title": "Sobre",
     "credit": "Feito com ❤ por jely2002 & colaboradores",
     "poweredBy": "Impulsionado por código aberto:",

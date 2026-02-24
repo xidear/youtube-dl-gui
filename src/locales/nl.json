@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "Bezig met voorbereiden…"
+  },
   "common": {
     "download": "Downloaden",
     "save": "Opslaan",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "Starten bij aanmelden",
-        "hint": "Start Open Video Downloader automatisch wanneer u zich aanmeldt."
+        "hint": "Start {appName} automatisch wanneer u zich aanmeldt."
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "Binnarui Video Downloader",
     "title": "Over deze app",
     "credit": "Gemaakt met ❤ door jely2002 & bijdragers",
     "poweredBy": "Aangedreven door open source:",

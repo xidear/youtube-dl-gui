@@ -1,15 +1,25 @@
 <template>
-  <router-view/>
-  <the-toaster/>
+  <div v-if="!appReady" class="preparing-screen" aria-live="polite">
+    <p class="preparing-text">{{ t('app.preparing') }}</p>
+  </div>
+  <template v-else>
+    <router-view/>
+    <the-toaster/>
+  </template>
 </template>
 
 <script setup lang="ts">
 import TheToaster from './components/TheToaster.vue';
+import { inject, onMounted } from 'vue';
 import { useBinariesStore } from './stores/binaries';
 import { useRouter } from 'vue-router';
 import { useUpdaterStore } from './stores/updater';
 import { useStrongholdStore } from './stores/stronghold';
 import { useDragDrop } from './composables/useDragDrop.ts';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
+const appReady = inject<{ value: boolean }>('appReady', { value: false });
 
 const router = useRouter();
 const binariesStore = useBinariesStore();
@@ -36,19 +46,30 @@ const checkUpdates = async () => {
   }
 };
 
-try {
+// 等窗口渲染完成后再检查；需释放时跳安装页且仅在该页释放，避免启动卡死
+onMounted(() => {
   void checkTools();
-} catch (e) {
-  console.error(e);
-}
-
-try {
-  void strongholdStore.loadStatus();
-} catch (e) {
-  console.error(e);
-}
-
-if (ENABLE_UPDATE_CHECK) {
-  void checkUpdates();
-}
+  try {
+    void strongholdStore.loadStatus();
+  } catch (e) {
+    console.error(e);
+  }
+  if (ENABLE_UPDATE_CHECK) {
+    void checkUpdates();
+  }
+});
 </script>
+
+<style scoped>
+.preparing-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+.preparing-text {
+  font-size: 1.125rem;
+  color: var(--fallback-p, #64748b);
+}
+</style>

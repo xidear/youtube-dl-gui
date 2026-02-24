@@ -1,0 +1,23 @@
+Binnarui Video Downloader (宾纳瑞视频下载器)
+https://www.binnarui.cn
+
+This application is a modified version of Open Video Downloader (youtube-dl-gui).
+We thank the original author and contributors for their work.
+
+-------------------------------------------------------------------------------
+Original work - Open Video Downloader (youtube-dl-gui)
+Copyright (c) Jelle Glebbeek and contributors
+https://github.com/jely2002/youtube-dl-gui
+
+Licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+See the LICENSE file in this distribution for the full license text.
+-------------------------------------------------------------------------------
+
+This modified distribution is maintained by xidear (https://www.binnarui.cn)
+and is likewise licensed under the GNU Affero General Public License v3.0.
+
+You must preserve this NOTICE and the LICENSE file when distributing
+source or binary copies. When you convey a modified version, you must
+provide the corresponding source code under the same AGPL-3.0 license.
+
+See https://www.gnu.org/licenses/agpl-3.0.html for the full AGPL-3.0 terms.

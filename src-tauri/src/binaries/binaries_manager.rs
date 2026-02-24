@@ -13,10 +13,16 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Emitter, Error, Manager, Wry};
 use tokio::fs;
+use tokio::io::AsyncWriteExt;
+use tokio::time::{sleep, Duration};
 
 /// 未内置辅助程序时的错误提示（面向最终用户）。
 const ERR_NO_EMBEDDED: &str =
   "此版本未内置辅助程序，无法使用。请从官方渠道获取已打包的完整版本。";
+
+/// 释放写入限速：约 50 MiB/s，避免一次性写满磁盘导致卡死
+const RELEASE_MAX_BYTES_PER_SEC: u64 = 50 * 1024 * 1024;
+const RELEASE_CHUNK_SIZE: usize = 1024 * 1024;
 
 type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -82,7 +88,6 @@ struct ToolStart {
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
-#[allow(dead_code)] // 前端仍监听 binary_download_progress，保留结构以便后续可发进度
 struct ToolProgress {
   tool: String,
   total: u64,
@@ -366,6 +371,41 @@ impl BinariesManager {
     Ok(manifest)
   }
 
+  /// 限速写入文件并发送进度，避免一次性写满磁盘导致卡死。
+  async fn write_throttled(
+    &self,
+    tool: &str,
+    dest: &Path,
+    bytes: &[u8],
+  ) -> Result<(), AnyError> {
+    let total = bytes.len() as u64;
+    let mut file = fs::File::create(dest).await?;
+    let mut received: u64 = 0;
+    let mut pos = 0;
+    while pos < bytes.len() {
+      let end = (pos + RELEASE_CHUNK_SIZE).min(bytes.len());
+      let chunk = &bytes[pos..end];
+      file.write_all(chunk).await?;
+      received += chunk.len() as u64;
+      pos = end;
+      let _ = self.app.emit(
+        "binary_download_progress",
+        ToolProgress {
+          tool: tool.to_string(),
+          total,
+          received,
+        },
+      );
+      if end < bytes.len() {
+        let chunk_len = chunk.len() as u64;
+        let sleep_ms = (chunk_len * 1000) / RELEASE_MAX_BYTES_PER_SEC;
+        sleep(Duration::from_millis(sleep_ms.max(1))).await;
+      }
+    }
+    file.flush().await?;
+    Ok(())
+  }
+
   /// 将内置二进制写入 dest，校验 sha256 后按类型解压/重命名到 bin 目录。
   async fn release_embedded_and_verify(
     &self,
@@ -383,7 +423,9 @@ impl BinariesManager {
       return Err("sha256 mismatch".into());
     }
 
-    fs::write(dest, bytes).await?;
+    self
+      .write_throttled(tool, dest, bytes)
+      .await?;
 
     let canonical = self.canonical_path(tool)?;
     let parent = dest.parent().unwrap();

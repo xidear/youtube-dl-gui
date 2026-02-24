@@ -5,6 +5,7 @@ import https from 'node:https';
 import { createHash } from 'node:crypto';
 import * as unzipper from 'unzipper';
 import { main as generateManifest } from './gen-manifest.ts';
+import { getTauriAppConfig } from './app-config.ts';
 
 export interface FileEntry {
   url: string;
@@ -29,7 +30,7 @@ export interface Manifest {
 }
 
 const LAYOUT_ROOT = 'msix-layout';
-const APP_DIR = path.join(LAYOUT_ROOT, 'Open Video Downloader');
+const APP_DIR = path.join(LAYOUT_ROOT, getTauriAppConfig().productName);
 const BIN_ROOT = path.join(APP_DIR, 'bin');
 
 function detectPlatformKey(): string {

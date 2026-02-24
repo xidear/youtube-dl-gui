@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "Preparing…"
+  },
   "common": {
     "download": "Download",
     "save": "Save",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "Start at login",
-        "hint": "Launch Open Video Downloader automatically when you sign in."
+        "hint": "Launch {appName} automatically when you sign in."
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "Binnarui Video Downloader",
     "title": "About",
     "credit": "Made with ❤ by jely2002 & contributors",
     "poweredBy": "Powered by open source:",

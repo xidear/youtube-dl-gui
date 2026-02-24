@@ -1,4 +1,7 @@
 {
+  "app": {
+    "preparing": "Подготовка…"
+  },
   "common": {
     "download": "Скачать",
     "save": "Сохранить",
@@ -636,7 +639,7 @@
       },
       "autoStart": {
         "label": "Запускать при входе",
-        "hint": "Запускать Open Video Downloader автоматически при входе в систему."
+        "hint": "Запускать {appName} автоматически при входе в систему."
       },
       "autoStartMinimised": {
         "label": {
@@ -890,6 +893,7 @@
     }
   },
   "about": {
+    "appName": "Binnarui Video Downloader",
     "title": "О программе",
     "credit": "Сделано с ❤ jely2002 и участниками сообщества",
     "poweredBy": "Основано на open-source:",
