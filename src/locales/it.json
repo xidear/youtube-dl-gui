@@ -381,10 +381,10 @@
         "examples": {
           "video": {
             "titleQuality": "Mio video-(1080p30).mp4",
-            "titleQualityCodec": "Mio video-(1080p30-av1).mp4",
+            "titleQualityCodec": "Mio video-(1080p30-av1-mp4a).mp4",
             "titleOnly": "Mio video.mp4",
             "titleQualityPlaylist": "03-Mio video-(1080p30).mkv",
-            "titleQualityPlaylistCodec": "03-Mio video-(1080p30-av1).mkv"
+            "titleQualityPlaylistCodec": "03-Mio video-(1080p30-av1-mp4a).mkv"
           },
           "audio": {
             "titleQuality": "Mio audio-(320k).mp3",

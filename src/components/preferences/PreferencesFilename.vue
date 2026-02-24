@@ -85,7 +85,7 @@ const videoFormatPresets: PresetDef[] = [
     label: t('location.filename.formatPreset.options.titleQualityCodec'),
     example: t('location.filename.formatPreset.examples.video.titleQualityCodec'),
     value: FormatPreset.TitleQualityCodec,
-    format: '%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s).%(ext)s',
+    format: '%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s-%(acodec)s).%(ext)s',
   },
   {
     label: t('location.filename.formatPreset.options.titleOnly'),
@@ -103,7 +103,7 @@ const videoFormatPresets: PresetDef[] = [
     label: t('location.filename.formatPreset.options.titleQualityPlaylistCodec'),
     example: t('location.filename.formatPreset.examples.video.titleQualityPlaylistCodec'),
     value: FormatPreset.TitleQualityPlaylistCodec,
-    format: '%(playlist_index)02d-%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s).%(ext)s',
+    format: '%(playlist_index)02d-%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s-%(acodec)s).%(ext)s',
   },
   {
     label: t('location.filename.formatPreset.options.custom'),

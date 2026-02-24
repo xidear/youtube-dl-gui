@@ -164,8 +164,8 @@ export const defaultOutputSettings: OutputSettings = {
   addMetadata: true,
   addThumbnail: true,
   downloadDir: null,
-  fileNameTemplate: '%(title).200s-(%(height)sp%(fps).0d).%(ext)s',
-  audioFileNameTemplate: '%(title).200s-(%(abr)dk).%(ext)s',
+  fileNameTemplate: '%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s-%(acodec)s).%(ext)s',
+  audioFileNameTemplate: '%(title).200s-(%(abr)dk-%(acodec)s).%(ext)s',
   restrictFilenames: false,
 };
 

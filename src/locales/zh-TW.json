@@ -381,10 +381,10 @@
         "examples": {
           "video": {
             "titleQuality": "我的影片-(1080p30).mp4",
-            "titleQualityCodec": "我的影片-(1080p30-av1).mp4",
+            "titleQualityCodec": "我的影片-(1080p30-av1-mp4a).mp4",
             "titleOnly": "我的影片.mp4",
             "titleQualityPlaylist": "03-我的影片-(1080p30).mkv",
-            "titleQualityPlaylistCodec": "03-我的影片-(1080p30-av1).mkv"
+            "titleQualityPlaylistCodec": "03-我的影片-(1080p30-av1-mp4a).mkv"
           },
           "audio": {
             "titleQuality": "我的音訊-(320k).mp3",

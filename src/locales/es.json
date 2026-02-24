@@ -381,10 +381,10 @@
         "examples": {
           "video": {
             "titleQuality": "Mi Video-(1080p30).mp4",
-            "titleQualityCodec": "Mi Video-(1080p30-av1).mp4",
+            "titleQualityCodec": "Mi Video-(1080p30-av1-mp4a).mp4",
             "titleOnly": "Mi Video.mp4",
             "titleQualityPlaylist": "03-Mi Video-(1080p30).mkv",
-            "titleQualityPlaylistCodec": "03-Mi Video-(1080p30-av1).mkv"
+            "titleQualityPlaylistCodec": "03-Mi Video-(1080p30-av1-mp4a).mkv"
           },
           "audio": {
             "titleQuality": "Mi Audio-(320k).mp3",

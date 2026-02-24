@@ -381,10 +381,10 @@
         "examples": {
           "video": {
             "titleQuality": "Mein Video-(1080p30).mp4",
-            "titleQualityCodec": "Mein Video-(1080p30-av1).mp4",
+            "titleQualityCodec": "Mein Video-(1080p30-av1-mp4a).mp4",
             "titleOnly": "Mein Video.mp4",
             "titleQualityPlaylist": "03-Mein Video-(1080p30).mkv",
-            "titleQualityPlaylistCodec": "03-Mein Video-(1080p30-av1).mkv"
+            "titleQualityPlaylistCodec": "03-Mein Video-(1080p30-av1-mp4a).mkv"
           },
           "audio": {
             "titleQuality": "Mein Audio-(320k).mp3",
