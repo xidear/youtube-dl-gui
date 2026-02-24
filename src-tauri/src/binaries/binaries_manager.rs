@@ -5,20 +5,18 @@ use crate::binaries::binaries_extractor::{
   extract_tar_bz2, extract_tar_bz2_bundle, extract_zip, extract_zip_bundle,
 };
 use crate::binaries::binaries_state::CheckResult;
+use crate::binaries::embedded;
 use crate::paths::PathsManager;
-use base64::Engine;
-use ed25519_dalek::{Signature, Verifier, VerifyingKey};
 use fs_extra::dir::{move_dir, CopyOptions};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Emitter, Error, Manager, Wry};
 use tokio::fs;
-use tokio::io::AsyncWriteExt;
 
-const MANIFEST_URL: &str = "https://jely2002.github.io/youtube-dl-gui/manifest/manifest.json";
-const MANIFEST_SIG_URL: &str = "https://jely2002.github.io/youtube-dl-gui/manifest/manifest.sig";
-const MANIFEST_PUB_KEY: &str = "ae7988a00d92349e55ff560369e7ec6afdb4b22a7e1dbe62a6769e1f347fa073";
+/// 未内置辅助程序时的错误提示（面向最终用户）。
+const ERR_NO_EMBEDDED: &str =
+  "此版本未内置辅助程序，无法使用。请从官方渠道获取已打包的完整版本。";
 
 type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -84,6 +82,7 @@ struct ToolStart {
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
+#[allow(dead_code)] // 前端仍监听 binary_download_progress，保留结构以便后续可发进度
 struct ToolProgress {
   tool: String,
   total: u64,
@@ -97,7 +96,6 @@ struct ToolComplete {
 
 pub struct BinariesManager {
   app: AppHandle<Wry>,
-  client: reqwest::Client,
   bin_dir: PathBuf,
 }
 
@@ -106,7 +104,6 @@ impl BinariesManager {
     let paths_manager = app.state::<PathsManager>();
     Self {
       app: app.clone(),
-      client: reqwest::Client::new(),
       bin_dir: paths_manager.bin_dir().clone(),
     }
   }
@@ -176,6 +173,10 @@ impl BinariesManager {
   }
 
   pub async fn check(&self) -> Result<CheckResult, AnyError> {
+    if !embedded::has_embedded_binaries() {
+      return Err(ERR_NO_EMBEDDED.into());
+    }
+
     let bin = &self.bin_dir;
     tokio::fs::create_dir_all(&bin).await?;
 
@@ -186,7 +187,7 @@ impl BinariesManager {
     }
     let arch = Self::current_platform();
 
-    let manifest = self.fetch_manifest().await?;
+    let manifest = self.get_manifest()?;
     let plan = self.build_plan(&manifest, &meta, &arch, None).await?;
     let tools: Vec<String> = plan.iter().map(|(n, _)| (*n).to_string()).collect();
 
@@ -194,6 +195,10 @@ impl BinariesManager {
   }
 
   pub async fn ensure(&self, allow: Option<&[String]>) -> Result<(), AnyError> {
+    if !embedded::has_embedded_binaries() {
+      return Err(ERR_NO_EMBEDDED.into());
+    }
+
     let bin = &self.bin_dir;
     tokio::fs::create_dir_all(&bin).await?;
 
@@ -204,7 +209,7 @@ impl BinariesManager {
     }
     let arch = Self::current_platform();
 
-    let manifest = self.fetch_manifest().await?;
+    let manifest = self.get_manifest()?;
     let plan = self.build_plan(&manifest, &meta, &arch, allow).await?;
     if plan.is_empty() {
       return Ok(());
@@ -273,8 +278,7 @@ impl BinariesManager {
       );
     };
 
-    let url = &file.url;
-    let Some(filename) = url.rsplit('/').next() else {
+    let Some(filename) = file.url.rsplit('/').next() else {
       return self.fail_stage(
         name,
         &info.version,
@@ -292,10 +296,19 @@ impl BinariesManager {
       },
     );
 
-    if let Err(e) = self
-      .download_and_verify(
+    let Some(bytes) = embedded::embedded_tool_bytes(name) else {
+      return self.fail_stage(
         name,
-        url,
+        &info.version,
+        "embedded",
+        "此版本未内置该辅助程序，请使用已正确打包的完整版本。".to_string(),
+      );
+    };
+
+    if let Err(e) = self
+      .release_embedded_and_verify(
+        name,
+        bytes,
         &file.sha256,
         &dest,
         file.entry.as_deref(),
@@ -303,7 +316,7 @@ impl BinariesManager {
       )
       .await
     {
-      return self.fail_stage(name, &info.version, "download_verify", e.to_string());
+      return self.fail_stage(name, &info.version, "release_verify", e.to_string());
     }
 
     let canonical = self.canonical_path(name).map_err(|e| {
@@ -347,72 +360,30 @@ impl BinariesManager {
     })
   }
 
-  async fn fetch_manifest(&self) -> Result<Manifest, AnyError> {
-    let manifest_bytes = self.client.get(MANIFEST_URL).send().await?.bytes().await?;
-
-    let sig_b64 = self
-      .client
-      .get(MANIFEST_SIG_URL)
-      .send()
-      .await?
-      .bytes()
-      .await?;
-    let sig_raw = base64::engine::general_purpose::STANDARD.decode(sig_b64)?;
-    let sig = Signature::from_slice(&sig_raw)?;
-
-    let key_vec = hex::decode(MANIFEST_PUB_KEY)?;
-    let key_bytes: [u8; 32] = key_vec.as_slice().try_into().map_err(|_| {
-      format!(
-        "invalid public key length: expected 32, got {}",
-        key_vec.len()
-      )
-    })?;
-
-    let vk = VerifyingKey::from_bytes(&key_bytes)?;
-    vk.verify(&manifest_bytes, &sig)?;
-
-    let manifest: Manifest = serde_json::from_slice(&manifest_bytes)?;
+  /// 仅使用内置 manifest，不进行任何网络拉取。
+  fn get_manifest(&self) -> Result<Manifest, AnyError> {
+    let manifest: Manifest = serde_json::from_slice(embedded::EMBEDDED_MANIFEST)?;
     Ok(manifest)
   }
 
-  async fn download_and_verify(
+  /// 将内置二进制写入 dest，校验 sha256 后按类型解压/重命名到 bin 目录。
+  async fn release_embedded_and_verify(
     &self,
     tool: &str,
-    url: &str,
-    sha256: &str,
+    bytes: &[u8],
+    sha256_expected: &str,
     dest: &Path,
     entry: Option<&str>,
     bundle: Option<&BundleInfo>,
   ) -> Result<(), AnyError> {
-    let mut res = self.client.get(url).send().await?;
-
-    let tmp = dest.with_extension("tmp");
-    let mut file = fs::File::create(&tmp).await?;
     let mut hasher = Sha256::new();
-
-    let total = res.content_length().unwrap_or(0);
-    let mut received: u64 = 0;
-
-    while let Some(chunk) = res.chunk().await? {
-      received += chunk.len() as u64;
-      hasher.update(&chunk);
-      file.write_all(&chunk).await?;
-      let _ = self.app.emit(
-        "binary_download_progress",
-        ToolProgress {
-          tool: tool.to_string(),
-          received,
-          total,
-        },
-      );
-    }
-
+    hasher.update(bytes);
     let hash = hex::encode(hasher.finalize());
-    if hash != sha256 {
+    if hash != sha256_expected {
       return Err("sha256 mismatch".into());
     }
 
-    fs::rename(&tmp, dest).await?;
+    fs::write(dest, bytes).await?;
 
     let canonical = self.canonical_path(tool)?;
     let parent = dest.parent().unwrap();

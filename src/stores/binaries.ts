@@ -8,14 +8,11 @@ import {
 } from '../tauri/types/binaries';
 import { ref } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { useSettingsStore } from './settings';
 
 export const useBinariesStore = defineStore('binaries', () => {
   const tools = ref<Record<string, BinaryProgress>>({});
-  const settingsStore = useSettingsStore();
-
+  /** 始终检查并释放内置辅助程序（不依赖「更新辅助程序」设置）。 */
   async function check(): Promise<string[]> {
-    if (!settingsStore.settings.update.updateBinaries) return [];
     const result = await invoke<BinaryCheckPayload>('binaries_check');
     tools.value = {};
     for (const tool of result.tools) {

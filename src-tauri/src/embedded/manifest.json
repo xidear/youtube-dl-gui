@@ -1,0 +1,190 @@
+{
+  "generatedAt": "2026-02-24T00:38:18.451Z",
+  "tools": {
+    "yt-dlp": {
+      "version": "2026.02.21",
+      "files": {
+        "linux-x86_64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_linux.zip",
+          "sha256": "bf81a26780b4d6f425c50ab1fcf75aa137b07289b17a42e85a7f8a712aaec116",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp_linux",
+            "entry": "yt-dlp_linux",
+            "rename_entry_to": "yt-dlp"
+          }
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_linux_aarch64.zip",
+          "sha256": "808084eac69f772926f9dba1c50ab0c0204492dfd70b4fa6b4f8a59bc81bbd85",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp_linux_aarch64",
+            "entry": "yt-dlp_linux_aarch64",
+            "rename_entry_to": "yt-dlp"
+          }
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_win.zip",
+          "sha256": "c416baffe960090a14d672c1baf26f3220405545cc86057fcda9057e81a489f9",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp",
+            "entry": "yt-dlp.exe",
+            "rename_entry_to": "yt-dlp.exe"
+          }
+        },
+        "windows-aarch64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_win_arm64.zip",
+          "sha256": "1f6bc19c28b20b2b16cab209bee0fbab4063a9a188fdd00219b8107d2bd47ce2",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp",
+            "entry": "yt-dlp_arm64.exe",
+            "rename_entry_to": "yt-dlp.exe"
+          }
+        },
+        "darwin-x86_64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_macos.zip",
+          "sha256": "7793be85dba0267b423b7dc3156c5a6b33c64b2630607f5c8bb759f35e275128",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp_macos",
+            "entry": "yt-dlp_macos",
+            "rename_entry_to": "yt-dlp"
+          }
+        },
+        "darwin-aarch64": {
+          "url": "https://github.com/yt-dlp/yt-dlp/releases/download/2026.02.21/yt-dlp_macos.zip",
+          "sha256": "7793be85dba0267b423b7dc3156c5a6b33c64b2630607f5c8bb759f35e275128",
+          "bundle": {
+            "keep_folder": true,
+            "folder_name": "yt-dlp_macos",
+            "entry": "yt-dlp_macos",
+            "rename_entry_to": "yt-dlp"
+          }
+        }
+      }
+    },
+    "ffmpeg": {
+      "version": "b6.1.1",
+      "files": {
+        "linux-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-linux-x64",
+          "sha256": "e7e7fb30477f717e6f55f9180a70386c62677ef8a4d4d1a5d948f4098aa3eb99"
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-linux-arm64",
+          "sha256": "6bb182d0d75d23028db82e9e4f723ca69b853d055698486e6984ddb2c06fb8ce"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-win32-x64",
+          "sha256": "04e1307997530f9cf2fe35cba2ca7e8875ca91da02f89d6c7243df819c94ad00"
+        },
+        "windows-aarch64": {
+          "url": "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip",
+          "sha256": "7908d7de5366099e16bcf77c0480e169ec0b8c01dde587a06f666af49d338cbd",
+          "entry": "ffmpeg-master-latest-winarm64-gpl/bin/ffmpeg.exe"
+        },
+        "darwin-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-x64",
+          "sha256": "ebdddc936f61e14049a2d4b549a412b8a40deeff6540e58a9f2a2da9e6b18894"
+        },
+        "darwin-aarch64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffmpeg-darwin-arm64",
+          "sha256": "a90e3db6a3fd35f6074b013f948b1aa45b31c6375489d39e572bea3f18336584"
+        }
+      }
+    },
+    "ffprobe": {
+      "version": "b6.1.1",
+      "files": {
+        "linux-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-linux-x64",
+          "sha256": "4f231a1960d83e403d08f7971e271707bec278a9ae18e21b8b5b03186668450d"
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-linux-arm64",
+          "sha256": "d17ae9b4c297d48e2521ba14e417bb0537c6ff77c584cdbcd6bb0d8d0307a2e8"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-win32-x64",
+          "sha256": "3a7e2dc003dc2cd1472827e4c7c4f056ae1ae0ae7c5bbc580c99b49827351ba4"
+        },
+        "windows-aarch64": {
+          "url": "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip",
+          "sha256": "7908d7de5366099e16bcf77c0480e169ec0b8c01dde587a06f666af49d338cbd",
+          "entry": "ffmpeg-master-latest-winarm64-gpl/bin/ffprobe.exe"
+        },
+        "darwin-x86_64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-darwin-x64",
+          "sha256": "fa3add0ce901f7241abe0dfc0155d958fc834aca3f8ce61f87cc712ae669c1e0"
+        },
+        "darwin-aarch64": {
+          "url": "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.1.1/ffprobe-darwin-arm64",
+          "sha256": "bb2db6f5d8cef919da12fbf592119a987202a8c060a886f3cab091f9cab90b64"
+        }
+      }
+    },
+    "deno": {
+      "version": "v2.6.10",
+      "files": {
+        "linux-x86_64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-x86_64-unknown-linux-gnu.zip",
+          "sha256": "a7c9d5c1f93bfaabe03c3c0583a8c88caf695db3cec4dea2938440038609f225",
+          "entry": "deno"
+        },
+        "linux-aarch64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-aarch64-unknown-linux-gnu.zip",
+          "sha256": "ad4031b16b193997cd40d2bf68c9af8b5148e0f39c1e975cfbb6d60ecec19496",
+          "entry": "deno"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-x86_64-pc-windows-msvc.zip",
+          "sha256": "6b26d272c2107ca63474c5702c824132a4a3e4469463edf0f327b9b5a5f5f854",
+          "entry": "deno.exe"
+        },
+        "windows-aarch64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-aarch64-pc-windows-msvc.zip",
+          "sha256": "8af2f9445ca3c83d7e26b09515e7ec64323a869040b313428ed9b1b165cdcc24",
+          "entry": "deno.exe"
+        },
+        "darwin-x86_64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-x86_64-apple-darwin.zip",
+          "sha256": "549d631ebe2421ee5e16b7a194764ba649ce2d1f4527496c2e607e551b7979b0",
+          "entry": "deno"
+        },
+        "darwin-aarch64": {
+          "url": "https://github.com/denoland/deno/releases/download/v2.6.10/deno-aarch64-apple-darwin.zip",
+          "sha256": "cdc880f43913f105de02a484005e5a5ed030c905e5a67e288f9ecadde6a86f62",
+          "entry": "deno"
+        }
+      }
+    },
+    "AtomicParsley": {
+      "version": "20240608.083822.1ed9031",
+      "files": {
+        "linux-x86_64": {
+          "url": "https://github.com/wez/atomicparsley/releases/download/20240608.083822.1ed9031/AtomicParsleyLinux.zip",
+          "sha256": "3ad238d57845fafa27563046478e78552f3cc61eabd8c308f2dc007a9c3c40b7",
+          "entry": "AtomicParsley"
+        },
+        "windows-x86_64": {
+          "url": "https://github.com/wez/atomicparsley/releases/download/20240608.083822.1ed9031/AtomicParsleyWindows.zip",
+          "sha256": "cc7c5a7dcaba28869f3819e4a57f382dc0ff307b7b013f9bffd028605ae6f52d",
+          "entry": "AtomicParsley.exe"
+        },
+        "windows-aarch64": {
+          "url": "https://github.com/wez/atomicparsley/releases/download/20240608.083822.1ed9031/AtomicParsleyWindows.zip",
+          "sha256": "cc7c5a7dcaba28869f3819e4a57f382dc0ff307b7b013f9bffd028605ae6f52d",
+          "entry": "AtomicParsley.exe"
+        },
+        "darwin-x86_64": {
+          "url": "https://github.com/wez/atomicparsley/releases/download/20240608.083822.1ed9031/AtomicParsleyMacOS.zip",
+          "sha256": "48d5d977c6d0b4be64f0a065da698cdc2e7ac31d6d195e9ced3b2bd6194a1e9f",
+          "entry": "AtomicParsley"
+        }
+      }
+    }
+  }
+}
