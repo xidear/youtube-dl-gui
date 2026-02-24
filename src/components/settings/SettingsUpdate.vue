@@ -13,6 +13,7 @@
         class="toggle toggle-primary"
     />
     <p class="label">{{ t('settings.update.updateBinaries.hint') }}</p>
+    <!-- 临时屏蔽：版本更新检测选项
     <label class="font-semibold mt-2" for="updateApp">
       {{ t('settings.update.updateApp.label') }}
     </label>
@@ -23,6 +24,7 @@
         class="toggle toggle-primary"
     />
     <p class="label">{{ t('settings.update.updateApp.hint') }}</p>
+    -->
   </base-fieldset>
 </template>
 <script setup lang="ts">

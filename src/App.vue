@@ -18,6 +18,9 @@ const strongholdStore = useStrongholdStore();
 
 useDragDrop();
 
+/** 临时设为 false 可屏蔽启动时版本更新检测 */
+const ENABLE_UPDATE_CHECK = false;
+
 const checkTools = async () => {
   const toolsToEnsure = await binariesStore.check();
   if (toolsToEnsure.length > 0) {
@@ -45,5 +48,7 @@ try {
   console.error(e);
 }
 
-void checkUpdates();
+if (ENABLE_UPDATE_CHECK) {
+  void checkUpdates();
+}
 </script>
