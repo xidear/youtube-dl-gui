@@ -372,20 +372,26 @@
         "exampleLabel": "Voorbeeld:",
         "options": {
           "titleQuality": "Titel + kwaliteit",
+          "titleQualityCodec": "Titel + kwaliteit + codec",
           "titleOnly": "Alleen titel",
           "titleQualityPlaylist": "afspeellijst + titel + kwaliteit",
+          "titleQualityPlaylistCodec": "afspeellijst + titel + kwaliteit + codec",
           "custom": "Aangepast"
         },
         "examples": {
           "video": {
             "titleQuality": "Mijn Video-(1080p30).mp4",
+            "titleQualityCodec": "Mijn Video-(1080p30-av1).mp4",
             "titleOnly": "Mijn Video.mp4",
-            "titleQualityPlaylist": "03-Mijn Video-(1080p30).mkv"
+            "titleQualityPlaylist": "03-Mijn Video-(1080p30).mkv",
+            "titleQualityPlaylistCodec": "03-Mijn Video-(1080p30-av1).mkv"
           },
           "audio": {
             "titleQuality": "Mijn Audio-(320k).mp3",
+            "titleQualityCodec": "Mijn Audio-(320k-opus).mp3",
             "titleOnly": "Mijn Audio.mp3",
-            "titleQualityPlaylist": "03-Mijn Audio-(320k).mp3"
+            "titleQualityPlaylist": "03-Mijn Audio-(320k).mp3",
+            "titleQualityPlaylistCodec": "03-Mijn Audio-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

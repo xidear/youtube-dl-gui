@@ -43,6 +43,46 @@
         {{ format.label }}
       </option>
     </select>
+
+    <!-- Video codec select -->
+    <select
+        v-if="showVideoCodecSelect"
+        v-model="selectedVideoCodec"
+        :id="videoCodecSelectId"
+        class="select select-primary"
+        :class="{ 'join-item': join }"
+    >
+      <option value="">
+        {{ autoLabel }}
+      </option>
+      <option
+          v-for="codec in availableVideoCodecs"
+          :key="codec"
+          :value="codec"
+      >
+        {{ codec }}
+      </option>
+    </select>
+
+    <!-- Audio codec select -->
+    <select
+        v-if="showAudioCodecSelect"
+        v-model="selectedAudioCodec"
+        :id="audioCodecSelectId"
+        class="select select-primary"
+        :class="{ 'join-item': join }"
+    >
+      <option value="">
+        {{ autoLabel }}
+      </option>
+      <option
+          v-for="codec in availableAudioCodecs"
+          :key="codec"
+          :value="codec"
+      >
+        {{ codec }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -85,6 +125,16 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  /** Optional list of available audio codecs for this item. */
+  audioCodecs: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
+  /** Optional list of available video codecs for this item. */
+  videoCodecs: {
+    type: Array as PropType<string[]>,
+    default: () => [],
+  },
 });
 
 const emit = defineEmits<{
@@ -102,11 +152,15 @@ const {
   modelValue,
   autoSelect,
   approximate,
+  audioCodecs,
+  videoCodecs,
 } = toRefs(props);
 
 const preferencesStore = usePreferencesStore();
 const selectedTrackType = ref<TrackType>(preferencesStore.preferences.formats.trackType);
 const selectedFormatId = ref('');
+const selectedVideoCodec = ref('');
+const selectedAudioCodec = ref('');
 const hasDefaulted = ref(false);
 const lastPick = reactive<{ audio?: string; video?: string }>({});
 
@@ -115,6 +169,8 @@ const locale: ComputedRef<{
   trackSelect: Record<string, string>;
 }> = computed(() => i18n.tm(localeKey.value));
 const isVideoLike = (t: TrackType) => t === TrackType.video || t === TrackType.both;
+
+const autoLabel = computed(() => i18n.t('common.best') ?? 'Auto');
 
 function makeKey(format: MediaFormat): string {
   return [
@@ -136,6 +192,8 @@ const formatByKey = computed<Map<string, MediaFormat>>(() => {
 const baseId = useId();
 const trackSelectId = `${baseId}-track`;
 const formatSelectId = `${baseId}-format`;
+const videoCodecSelectId = `${baseId}-vcodec`;
+const audioCodecSelectId = `${baseId}-acodec`;
 
 const trackOptions = computed<SelectOption[]>(() => {
   const i18nLabels = i18n.tm('media.steps.configure.trackTypes');
@@ -158,6 +216,31 @@ const formatsByTrackType = computed<Record<TrackType, MediaFormat[]>>(() => {
 
 const filteredFormats = computed<MediaFormat[]>(() =>
   formatsByTrackType.value[selectedTrackType.value],
+);
+
+const availableAudioCodecs = computed<string[]>(() => {
+  const list = audioCodecs.value ?? [];
+  return Array.from(new Set(list)).sort();
+});
+
+const availableVideoCodecs = computed<string[]>(() => {
+  const list = videoCodecs.value ?? [];
+  return Array.from(new Set(list)).sort();
+});
+
+const hasAudioCodecs = computed(() => availableAudioCodecs.value.length > 0);
+const hasVideoCodecs = computed(() => availableVideoCodecs.value.length > 0);
+
+const showAudioCodecSelect = computed(
+  () =>
+    hasAudioCodecs.value
+    && (selectedTrackType.value === TrackType.audio || selectedTrackType.value === TrackType.both),
+);
+
+const showVideoCodecSelect = computed(
+  () =>
+    hasVideoCodecs.value
+    && (selectedTrackType.value === TrackType.video || selectedTrackType.value === TrackType.both),
 );
 
 const formatOptions = computed<SelectOption[]>(() => {
@@ -205,6 +288,13 @@ watch(
       ...(format ?? {}),
     };
 
+    if (selectedVideoCodec.value) {
+      payload.videoCodec = selectedVideoCodec.value;
+    }
+    if (selectedAudioCodec.value) {
+      payload.audioCodec = selectedAudioCodec.value;
+    }
+
     emit('update:modelValue', payload);
 
     if (format && isVideoLike(selectedTrackType.value)) {
@@ -231,6 +321,8 @@ function syncFromModel(model: DownloadOptions | undefined) {
   if (model) {
     hasDefaulted.value = true;
     selectedTrackType.value = model.trackType;
+    selectedVideoCodec.value = model.videoCodec ?? '';
+    selectedAudioCodec.value = model.audioCodec ?? '';
 
     const match = matchByDownloadOptions(model);
 

@@ -1,4 +1,4 @@
-import { createI18n, I18n } from 'vue-i18n';
+import { createI18n } from 'vue-i18n';
 import en from './locales/en.json';
 import es from './locales/es.json';
 import nl from './locales/nl.json';
@@ -28,7 +28,7 @@ export function getDefaultLocale() {
   return 'en';
 }
 
-export const i18n: I18n = createI18n<[MessageSchema], Locale>({
+export const i18n = createI18n<[MessageSchema], Locale>({
   locale: 'en',
   legacy: false,
   globalInjection: false,

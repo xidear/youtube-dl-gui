@@ -372,20 +372,26 @@
         "exampleLabel": "Exemplo de saída:",
         "options": {
           "titleQuality": "Título + qualidade",
+          "titleQualityCodec": "Título + qualidade + codec",
           "titleOnly": "Apenas título",
           "titleQualityPlaylist": "Título + qualidade + playlist",
+          "titleQualityPlaylistCodec": "Título + qualidade + playlist + codec",
           "custom": "Personalizado"
         },
         "examples": {
           "video": {
             "titleQuality": "Meu vídeo-(1080p30).mp4",
+            "titleQualityCodec": "Meu vídeo-(1080p30-av1).mp4",
             "titleOnly": "Meu vídeo.mp4",
-            "titleQualityPlaylist": "03-Meu vídeo-(1080p30).mkv"
+            "titleQualityPlaylist": "03-Meu vídeo-(1080p30).mkv",
+            "titleQualityPlaylistCodec": "03-Meu vídeo-(1080p30-av1).mkv"
           },
           "audio": {
             "titleQuality": "Meu áudio-(320k).mp3",
+            "titleQualityCodec": "Meu áudio-(320k-opus).mp3",
             "titleOnly": "Meu áudio.mp3",
-            "titleQualityPlaylist": "03-Meu áudio-(320k).mp3"
+            "titleQualityPlaylist": "03-Meu áudio-(320k).mp3",
+            "titleQualityPlaylistCodec": "03-Meu áudio-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

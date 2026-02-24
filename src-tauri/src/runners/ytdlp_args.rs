@@ -27,6 +27,10 @@ pub fn build_format_args(
         sort_fields.push("abr".into());
       }
 
+      if let Some(ref codec) = format_options.audio_codec {
+        sort_fields.push(format!("acodec:{codec}"));
+      }
+
       match output_settings.audio.format {
         AudioFormat::M4a | AudioFormat::Aac => {
           sort_fields.push("aext:m4a".into());
@@ -75,6 +79,10 @@ pub fn build_format_args(
         sort_fields.push(format!("fps:{f}"));
       } else {
         sort_fields.push("fps".into());
+      }
+
+      if let Some(ref codec) = format_options.video_codec {
+        sort_fields.push(format!("vcodec:{codec}"));
       }
 
       if matches!(output_settings.video.container, VideoContainer::Mp4) {
@@ -252,6 +260,8 @@ mod tests {
       abr,
       height: None,
       fps: None,
+      video_codec: None,
+      audio_codec: None,
     }
   }
 
@@ -261,6 +271,8 @@ mod tests {
       abr: None,
       height,
       fps,
+      video_codec: None,
+      audio_codec: None,
     }
   }
 
@@ -270,6 +282,8 @@ mod tests {
       abr: None,
       height,
       fps,
+      video_codec: None,
+      audio_codec: None,
     }
   }
 

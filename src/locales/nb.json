@@ -372,20 +372,26 @@
         "exampleLabel": "Eksempel på utdata:",
         "options": {
           "titleQuality": "Tittel + kvalitet",
+          "titleQualityCodec": "Tittel + kvalitet + kodek",
           "titleOnly": "Kun tittel",
           "titleQualityPlaylist": "Spilleliste + tittel + kvalitet",
+          "titleQualityPlaylistCodec": "Spilleliste + tittel + kvalitet + kodek",
           "custom": "Egendefinert"
         },
         "examples": {
           "video": {
             "titleQuality": "Min Video-(1080p30).mp4",
+            "titleQualityCodec": "Min Video-(1080p30-av1).mp4",
             "titleOnly": "Min Video.mp4",
-            "titleQualityPlaylist": "03-Min Video-(1080p30).mkv"
+            "titleQualityPlaylist": "03-Min Video-(1080p30).mkv",
+            "titleQualityPlaylistCodec": "03-Min Video-(1080p30-av1).mkv"
           },
           "audio": {
             "titleQuality": "Min Lyd-(320k).mp3",
+            "titleQualityCodec": "Min Lyd-(320k-opus).mp3",
             "titleOnly": "Min Lyd.mp3",
-            "titleQualityPlaylist": "03-Min Lyd-(320k).mp3"
+            "titleQualityPlaylist": "03-Min Lyd-(320k).mp3",
+            "titleQualityPlaylistCodec": "03-Min Lyd-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

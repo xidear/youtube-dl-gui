@@ -40,8 +40,10 @@ export interface InputSettings {
 
 export enum FormatPreset {
   TitleQuality = 'titleQuality',
+  TitleQualityCodec = 'titleQualityCodec',
   TitleOnly = 'titleOnly',
   TitleQualityPlaylist = 'titleQualityPlaylist',
+  TitleQualityPlaylistCodec = 'titleQualityPlaylistCodec',
   Custom = 'custom',
 }
 

@@ -372,20 +372,26 @@
         "exampleLabel": "Example output:",
         "options": {
           "titleQuality": "Title + quality",
+            "titleQualityCodec": "Title + quality + codec",
           "titleOnly": "Title only",
-          "titleQualityPlaylist": "Playlist + title + quality",
+            "titleQualityPlaylist": "Playlist + title + quality",
+            "titleQualityPlaylistCodec": "Playlist + title + quality + codec",
           "custom": "Custom"
         },
         "examples": {
           "video": {
-            "titleQuality": "My Video-(1080p30).mp4",
-            "titleOnly": "My Video.mp4",
-            "titleQualityPlaylist": "03-My Video-(1080p30).mkv"
+              "titleQuality": "My Video-(1080p30).mp4",
+              "titleQualityCodec": "My Video-(1080p30-av1).mp4",
+              "titleOnly": "My Video.mp4",
+              "titleQualityPlaylist": "03-My Video-(1080p30).mkv",
+              "titleQualityPlaylistCodec": "03-My Video-(1080p30-av1).mkv"
           },
           "audio": {
-            "titleQuality": "My Audio-(320k).mp3",
-            "titleOnly": "My Audio.mp3",
-            "titleQualityPlaylist": "03-My Audio-(320k).mp3"
+              "titleQuality": "My Audio-(320k).mp3",
+              "titleQualityCodec": "My Audio-(320k-opus).mp3",
+              "titleOnly": "My Audio.mp3",
+              "titleQualityPlaylist": "03-My Audio-(320k).mp3",
+              "titleQualityPlaylistCodec": "03-My Audio-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

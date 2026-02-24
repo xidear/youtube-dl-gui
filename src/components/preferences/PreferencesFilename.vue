@@ -82,6 +82,12 @@ const videoFormatPresets: PresetDef[] = [
     format: '%(title).200s-(%(height)sp%(fps).0d).%(ext)s',
   },
   {
+    label: t('location.filename.formatPreset.options.titleQualityCodec'),
+    example: t('location.filename.formatPreset.examples.video.titleQualityCodec'),
+    value: FormatPreset.TitleQualityCodec,
+    format: '%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s).%(ext)s',
+  },
+  {
     label: t('location.filename.formatPreset.options.titleOnly'),
     example: t('location.filename.formatPreset.examples.video.titleOnly'),
     value: FormatPreset.TitleOnly,
@@ -92,6 +98,12 @@ const videoFormatPresets: PresetDef[] = [
     example: t('location.filename.formatPreset.examples.video.titleQualityPlaylist'),
     value: FormatPreset.TitleQualityPlaylist,
     format: '%(playlist_index)02d-%(title).200s-(%(height)sp%(fps).0d).%(ext)s',
+  },
+  {
+    label: t('location.filename.formatPreset.options.titleQualityPlaylistCodec'),
+    example: t('location.filename.formatPreset.examples.video.titleQualityPlaylistCodec'),
+    value: FormatPreset.TitleQualityPlaylistCodec,
+    format: '%(playlist_index)02d-%(title).200s-(%(height)sp%(fps).0d-%(vcodec)s).%(ext)s',
   },
   {
     label: t('location.filename.formatPreset.options.custom'),
@@ -108,6 +120,12 @@ const audioFormatPresets: PresetDef[] = [
     format: '%(title).200s-(%(abr)dk).%(ext)s',
   },
   {
+    label: t('location.filename.formatPreset.options.titleQualityCodec'),
+    example: t('location.filename.formatPreset.examples.audio.titleQualityCodec'),
+    value: FormatPreset.TitleQualityCodec,
+    format: '%(title).200s-(%(abr)dk-%(acodec)s).%(ext)s',
+  },
+  {
     label: t('location.filename.formatPreset.options.titleOnly'),
     example: t('location.filename.formatPreset.examples.audio.titleOnly'),
     value: FormatPreset.TitleOnly,
@@ -118,6 +136,12 @@ const audioFormatPresets: PresetDef[] = [
     example: t('location.filename.formatPreset.examples.audio.titleQualityPlaylist'),
     value: FormatPreset.TitleQualityPlaylist,
     format: '%(playlist_index)02d-%(title).200s-(%(abr)dk).%(ext)s',
+  },
+  {
+    label: t('location.filename.formatPreset.options.titleQualityPlaylistCodec'),
+    example: t('location.filename.formatPreset.examples.audio.titleQualityPlaylistCodec'),
+    value: FormatPreset.TitleQualityPlaylistCodec,
+    format: '%(playlist_index)02d-%(title).200s-(%(abr)dk-%(acodec)s).%(ext)s',
   },
   {
     label: t('location.filename.formatPreset.options.custom'),

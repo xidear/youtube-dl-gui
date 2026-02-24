@@ -372,20 +372,26 @@
         "exampleLabel": "Пример результата:",
         "options": {
           "titleQuality": "Название + качество",
+          "titleQualityCodec": "Название + качество + кодек",
           "titleOnly": "Только название",
           "titleQualityPlaylist": "Плейлист + название + качество",
+          "titleQualityPlaylistCodec": "Плейлист + название + качество + кодек",
           "custom": "Пользовательский"
         },
         "examples": {
           "video": {
             "titleQuality": "My Video-(1080p30).mp4",
+            "titleQualityCodec": "My Video-(1080p30-av1).mp4",
             "titleOnly": "My Video.mp4",
-            "titleQualityPlaylist": "03-My Video-(1080p30).mkv"
+            "titleQualityPlaylist": "03-My Video-(1080p30).mkv",
+            "titleQualityPlaylistCodec": "03-My Video-(1080p30-av1).mkv"
           },
           "audio": {
             "titleQuality": "My Audio-(320k).mp3",
+            "titleQualityCodec": "My Audio-(320k-opus).mp3",
             "titleOnly": "My Audio.mp3",
-            "titleQualityPlaylist": "03-My Audio-(320k).mp3"
+            "titleQualityPlaylist": "03-My Audio-(320k).mp3",
+            "titleQualityPlaylistCodec": "03-My Audio-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

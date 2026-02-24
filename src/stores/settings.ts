@@ -36,7 +36,7 @@ export const useSettingsStore = defineStore('settings', () => {
   function applySettings(cfg: Settings) {
     Object.assign(settings.value, cfg);
     if (cfg.appearance.language) {
-      const locale = i18n.global.locale as Ref<string>;
+      const locale = i18n.global.locale as unknown as Ref<string>;
       locale.value = cfg.appearance.language === 'system' ? getDefaultLocale() : cfg.appearance.language;
       document.documentElement.setAttribute('lang', locale.value);
     }

@@ -3,9 +3,12 @@
     <h2 :title="group.title ?? group.url" class="card-title block leading-8 overflow-hidden text-nowrap text-ellipsis text-base col-span-2">{{ group.title ?? group.url }}</h2>
     <media-download-options
         :formats="group.formats"
+        :audio-codecs="group.audioCodecs"
+        :video-codecs="videoCodecs"
         :default-value="optionsStore.getGlobalOptions()"
         v-model="selectedOptions"
-        class="flex gap-4 w-full col-start-1 col-end-3"
+        class="flex w-full col-start-1 col-end-3"
+        join
         approximate
     />
     <p class="mt-2 flex items-center">
@@ -61,6 +64,11 @@ const sizeStore = useMediaSizeStore();
 const settingsStore = useSettingsStore();
 const isSizeLoading = ref(false);
 const optionsStore = useMediaOptionsStore();
+const videoCodecs = computed<string[]>(() =>
+  group.formats.flatMap((f) => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
+    ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
+    ?? []),
+);
 
 const failedItemDisplay = computed(() => {
   return group?.errored > 0 ? t('media.steps.configure.metadata.failedCount', { amount: group?.errored }) : '';

@@ -52,6 +52,8 @@
       <media-download-options
           v-model="selectedOptions"
           :formats="groupStore.getAllFormats()"
+          :audio-codecs="allAudioCodecs"
+          :video-codecs="allVideoCodecs"
           :auto-select="false"
           locale-key="layout.footer.format"
           class="w-fit grow"
@@ -159,6 +161,16 @@ const groupStore = useMediaGroupStore();
 const optionsStore = useMediaOptionsStore();
 
 const isStartingDownload = ref(false);
+
+const allVideoCodecs = computed<string[]>(() =>
+  groupStore.getAllFormats().flatMap((f) => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
+    ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
+    ?? []),
+);
+
+const allAudioCodecs = computed<string[]>(() =>
+  Object.values(groupStore.groups).flatMap(group => group.audioCodecs ?? []),
+);
 
 const clearGroups = (): void => {
   mediaStore.deleteAllGroups();

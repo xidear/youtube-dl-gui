@@ -75,7 +75,7 @@ async function initStores(): Promise<void> {
     if (settings.appearance.theme !== 'system') {
       applyTheme(settings.appearance.theme);
     }
-    const locale = i18n.global.locale as Ref<string>;
+    const locale = i18n.global.locale as unknown as Ref<string>;
     locale.value = settings.appearance.language === 'system'
       ? getDefaultLocale()
       : settings.appearance.language;

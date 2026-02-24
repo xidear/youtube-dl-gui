@@ -372,20 +372,26 @@
         "exampleLabel": "範例輸出:",
         "options": {
           "titleQuality": "標題 + 畫質",
+          "titleQualityCodec": "標題 + 畫質 + 編碼",
           "titleOnly": "僅標題",
           "titleQualityPlaylist": "播放清單 + 標題 + 畫質",
+          "titleQualityPlaylistCodec": "播放清單 + 標題 + 畫質 + 編碼",
           "custom": "Custom"
         },
         "examples": {
           "video": {
             "titleQuality": "我的影片-(1080p30).mp4",
+            "titleQualityCodec": "我的影片-(1080p30-av1).mp4",
             "titleOnly": "我的影片.mp4",
-            "titleQualityPlaylist": "03-我的影片-(1080p30).mkv"
+            "titleQualityPlaylist": "03-我的影片-(1080p30).mkv",
+            "titleQualityPlaylistCodec": "03-我的影片-(1080p30-av1).mkv"
           },
           "audio": {
             "titleQuality": "我的音訊-(320k).mp3",
+            "titleQualityCodec": "我的音訊-(320k-opus).mp3",
             "titleOnly": "我的音訊.mp3",
-            "titleQualityPlaylist": "03-我的音訊-(320k).mp3"
+            "titleQualityPlaylist": "03-我的音訊-(320k).mp3",
+            "titleQualityPlaylistCodec": "03-我的音訊-(320k-opus).mp3"
           }
         },
         "restrictFilenames": {

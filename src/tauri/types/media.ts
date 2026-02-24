@@ -30,6 +30,10 @@ export type DownloadOptions = {
   abr?: number;
   height?: number;
   fps?: number;
+  /** Optional preferred video codec (e.g. av1, h264). */
+  videoCodec?: string;
+  /** Optional preferred audio codec (e.g. aac, opus). */
+  audioCodec?: string;
 };
 
 export interface MediaAddPayload {
