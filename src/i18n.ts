@@ -9,19 +9,21 @@ import nb from './locales/nb.json';
 import ru from './locales/ru.json';
 import ptBR from './locales/pt-BR.json';
 import zhTW from './locales/zh-TW.json';
+import zhCN from './locales/zh-CN.json';
 import { detectBrowserLanguageCodes } from './helpers/subtitles/languages.ts';
 
 export const availableLocales: Record<string, boolean> = {
-  'en': true, 'es': true, 'nl': true, 'it': true, 'fr': true, 'de': true, 'nb': true, 'ru': true, 'pt-BR': true, 'zh-TW': true,
+  'en': true, 'es': true, 'nl': true, 'it': true, 'fr': true, 'de': true, 'nb': true, 'ru': true, 'pt-BR': true, 'zh-TW': true, 'zh-CN': true,
 } as const;
 
 type MessageSchema = typeof en;
 export type Locale = keyof typeof availableLocales;
 
 export function getDefaultLocale() {
-  const browserLocale = detectBrowserLanguageCodes()[0];
-  if (availableLocales[browserLocale]) {
-    return browserLocale;
+  for (const tag of detectBrowserLanguageCodes()) {
+    if (availableLocales[tag]) return tag;
+    const primary = tag.split('-')[0];
+    if (availableLocales[primary]) return primary;
   }
   return 'en';
 }
@@ -42,5 +44,6 @@ export const i18n: I18n = createI18n<[MessageSchema], Locale>({
     ru,
     'pt-BR': ptBR,
     'zh-TW': zhTW,
+    'zh-CN': zhCN,
   },
 });

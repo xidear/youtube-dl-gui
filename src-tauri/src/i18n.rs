@@ -176,6 +176,23 @@ pub fn normalize_locale_code(input: &str) -> String {
   parts.join("-")
 }
 
+/// Prefer zh-CN when region is CN, zh-TW when TW; otherwise default to zh-CN if available.
+fn resolve_zh_fallback(norm: &str, locales: &HashMap<String, Value>) -> Option<String> {
+  if norm == "zh-CN" && locales.contains_key("zh-CN") {
+    return Some("zh-CN".into());
+  }
+  if norm == "zh-TW" && locales.contains_key("zh-TW") {
+    return Some("zh-TW".into());
+  }
+  if locales.contains_key("zh-CN") {
+    return Some("zh-CN".into());
+  }
+  if locales.contains_key("zh-TW") {
+    return Some("zh-TW".into());
+  }
+  None
+}
+
 fn resolve_locale_from_sources(
   locales: &HashMap<String, Value>,
   config_locale: Option<&str>,
@@ -184,11 +201,15 @@ fn resolve_locale_from_sources(
     let raw = raw.trim();
     if !raw.is_empty() {
       let norm = normalize_locale_code(raw);
-
       if locales.contains_key(&norm) {
         return norm;
       }
       if let Some(primary) = norm.split('-').next() {
+        if primary == "zh" {
+          if let Some(resolved) = resolve_zh_fallback(&norm, locales) {
+            return resolved;
+          }
+        }
         if locales.contains_key(primary) {
           return primary.to_string();
         }
@@ -198,11 +219,15 @@ fn resolve_locale_from_sources(
 
   if let Some(sys) = sys_locale::get_locale() {
     let norm = normalize_locale_code(&sys);
-
     if locales.contains_key(&norm) {
       return norm;
     }
     if let Some(primary) = norm.split('-').next() {
+      if primary == "zh" {
+        if let Some(resolved) = resolve_zh_fallback(&norm, locales) {
+          return resolved;
+        }
+      }
       if locales.contains_key(primary) {
         return primary.to_string();
       }

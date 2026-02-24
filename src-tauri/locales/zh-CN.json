@@ -1,0 +1,48 @@
+{
+  "tray": {
+    "quit": "退出",
+    "showOrHide": "显示/隐藏窗口",
+    "addToQueue": "从剪贴板加入",
+    "downloadQueue": "下载队列中的项目",
+    "shortcuts": {
+      "ctrlShiftV": "Ctrl + Shift + V",
+      "ctrlShiftEnter": "Ctrl + Shift + Enter",
+      "altShiftV": "Alt + Shift + V",
+      "altShiftEnter": "Alt + Shift + Enter"
+    }
+  },
+  "notifications": {
+    "queueAdded": {
+      "title": "已加入队列",
+      "body": "{title}"
+    },
+    "queueDownloading": {
+      "title": "正在下载队列中的项目",
+      "body": "正在下载 {n} 个项目 | 正在下载 {n} 个项目"
+    },
+    "queueFinished": {
+      "title": "所有队列中的项目皆已完成下载",
+      "body": "已完成下载 {n} 个项目 | 已完成下载 {n} 个项目"
+    },
+    "videoFinished": {
+      "title": "下载完成",
+      "body": "{title}"
+    },
+    "playlistFinished": {
+      "title": "播放列表完成",
+      "body": "{title}"
+    },
+    "videoReady": {
+      "title": "下载已准备就绪",
+      "body": "{title}"
+    },
+    "playlistReady": {
+      "title": "播放列表下载已准备就绪",
+      "body": "{title} | {title} ({n} 个项目) | {title} ({n} 个项目)"
+    },
+    "downloadFailed": {
+      "title": "下载失败",
+      "body": "{title}\n{message}"
+    }
+  }
+}
