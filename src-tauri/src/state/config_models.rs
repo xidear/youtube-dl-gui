@@ -185,8 +185,8 @@ pub struct UpdateSettings {
 impl Default for UpdateSettings {
   fn default() -> Self {
     Self {
-      update_binaries: true,
-      update_app: true,
+      update_binaries: false,
+      update_app: false,
     }
   }
 }

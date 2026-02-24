@@ -188,8 +188,8 @@ export const defaultSponsorBlockSettings: SponsorBlockSettings = {
 };
 
 export const defaultUpdateSettings: UpdateSettings = {
-  updateBinaries: true,
-  updateApp: true,
+  updateBinaries: false,
+  updateApp: false,
 };
 
 export const defaultSystemSettings: SystemSettings = {
