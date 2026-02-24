@@ -91,7 +91,7 @@ import { useI18n } from 'vue-i18n';
 import { computed, PropType, ref, watch, toRefs, reactive, useId, ComputedRef } from 'vue';
 import { DownloadOptions, MediaFormat, TrackType } from '../../tauri/types/media.ts';
 import { SelectOption } from '../../helpers/forms.ts';
-import { approxAudio, approxVideo, sortFormats } from '../../helpers/formats.ts';
+import { approxAudio, approxVideo, sortFormats, uniqueCodecsCaseInsensitive } from '../../helpers/formats.ts';
 import { usePreferencesStore } from '../../stores/preferences.ts';
 
 const i18n = useI18n();
@@ -218,15 +218,13 @@ const filteredFormats = computed<MediaFormat[]>(() =>
   formatsByTrackType.value[selectedTrackType.value],
 );
 
-const availableAudioCodecs = computed<string[]>(() => {
-  const list = audioCodecs.value ?? [];
-  return Array.from(new Set(list)).sort();
-});
+const availableAudioCodecs = computed<string[]>(() =>
+  uniqueCodecsCaseInsensitive(audioCodecs.value ?? []),
+);
 
-const availableVideoCodecs = computed<string[]>(() => {
-  const list = videoCodecs.value ?? [];
-  return Array.from(new Set(list)).sort();
-});
+const availableVideoCodecs = computed<string[]>(() =>
+  uniqueCodecsCaseInsensitive(videoCodecs.value ?? []),
+);
 
 const hasAudioCodecs = computed(() => availableAudioCodecs.value.length > 0);
 const hasVideoCodecs = computed(() => availableVideoCodecs.value.length > 0);

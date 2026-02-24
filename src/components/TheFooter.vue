@@ -145,6 +145,7 @@ import { useStrongholdStore } from '../stores/stronghold';
 import { useI18n } from 'vue-i18n';
 import MediaDownloadOptions from './media-card/MediaDownloadOptions.vue';
 import { useMediaGroupStore } from '../stores/media/group.ts';
+import { uniqueCodecsCaseInsensitive } from '../helpers/formats.ts';
 import BaseButtonDropdown from './base/BaseButtonDropdown.vue';
 import { MediaState, useMediaStateStore } from '../stores/media/state.ts';
 import BroomIcon from './icons/BroomIcon.vue';
@@ -163,13 +164,17 @@ const optionsStore = useMediaOptionsStore();
 const isStartingDownload = ref(false);
 
 const allVideoCodecs = computed<string[]>(() =>
-  groupStore.getAllFormats().flatMap((f) => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
-    ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
-    ?? []),
+  uniqueCodecsCaseInsensitive(
+    groupStore.getAllFormats().flatMap(f => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
+      ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
+      ?? []),
+  ),
 );
 
 const allAudioCodecs = computed<string[]>(() =>
-  Object.values(groupStore.groups).flatMap(group => group.audioCodecs ?? []),
+  uniqueCodecsCaseInsensitive(
+    Object.values(groupStore.groups).flatMap(group => group.audioCodecs ?? []),
+  ),
 );
 
 const clearGroups = (): void => {

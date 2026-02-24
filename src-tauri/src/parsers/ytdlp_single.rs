@@ -58,12 +58,12 @@ fn process_formats(
     if fmt.height.is_some() {
       if let Some(vc) = &fmt.vcodec {
         if vc != "none" {
-          video_codecs.insert(vc.clone());
+          video_codecs.insert(vc.to_lowercase());
         }
       }
     } else if let Some(ac) = &fmt.acodec {
       if ac != "none" {
-        audio_codecs.insert(ac.clone());
+        audio_codecs.insert(ac.to_lowercase());
       }
     }
   }
@@ -148,12 +148,12 @@ fn collect_codecs_for_group(
 
     if let Some(vc) = &other.vcodec {
       if vc != "none" {
-        codecs.insert(vc.clone());
+        codecs.insert(vc.to_lowercase());
       }
     }
     if let Some(ac) = &other.acodec {
       if ac != "none" {
-        codecs.insert(ac.clone());
+        codecs.insert(ac.to_lowercase());
       }
     }
   }

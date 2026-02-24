@@ -48,6 +48,7 @@ import { Group } from '../../../tauri/types/group';
 import { useMediaOptionsStore } from '../../../stores/media/options';
 import { useI18n } from 'vue-i18n';
 import MediaDownloadOptions from '../MediaDownloadOptions.vue';
+import { uniqueCodecsCaseInsensitive } from '../../../helpers/formats';
 import { InformationCircleIcon } from '@heroicons/vue/24/outline';
 
 const i18n = useI18n();
@@ -65,9 +66,11 @@ const settingsStore = useSettingsStore();
 const isSizeLoading = ref(false);
 const optionsStore = useMediaOptionsStore();
 const videoCodecs = computed<string[]>(() =>
-  group.formats.flatMap((f) => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
-    ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
-    ?? []),
+  uniqueCodecsCaseInsensitive(
+    group.formats.flatMap(f => (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).codecs
+      ?? (f as unknown as { codecs?: string[]; videoCodecs?: string[] }).videoCodecs
+      ?? []),
+  ),
 );
 
 const failedItemDisplay = computed(() => {

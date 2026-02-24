@@ -1,5 +1,14 @@
 import { MediaFormat } from '../tauri/types/media';
 
+/** Deduplicate codec strings case-insensitively and return sorted (lowercase). */
+export function uniqueCodecsCaseInsensitive(list: string[]): string[] {
+  const set = new Set<string>();
+  for (const c of list) {
+    if (c) set.add(c.toLowerCase());
+  }
+  return [...set].sort();
+}
+
 export function sortFormats(formats: MediaFormat[]): MediaFormat[] {
   const clone = [...formats];
   return clone.sort(sortFormat);

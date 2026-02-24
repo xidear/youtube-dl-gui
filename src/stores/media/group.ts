@@ -137,9 +137,11 @@ export const useMediaGroupStore = defineStore('media-group', () => {
     for (const it of items) {
       const entry = leader.entries?.find(entry => entry.videoUrl === it.url);
       if (entry) it.playlistIndex = entry.index;
-      for (const codec of it.audioCodecs ?? []) codecSet.add(codec);
+      for (const codec of it.audioCodecs ?? []) {
+        codecSet.add(codec.toLowerCase());
+      }
     }
-    leader.audioCodecs = [...codecSet];
+    leader.audioCodecs = [...codecSet].sort();
 
     const formatMap = new Map<string, MediaFormat>();
     for (const it of items) {
