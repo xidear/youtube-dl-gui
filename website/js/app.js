@@ -41,13 +41,13 @@
     var assetName;
     switch (os) {
       case 'Windows':
-        assetName = 'Open.Video.Downloader_' + version + '_x64-setup.exe';
+        assetName = '宾纳瑞视频下载器_' + version + '_x64-setup.exe';
         break;
       case 'MacOS Silicon':
-        assetName = 'Open.Video.Downloader_' + version + '_aarch64.dmg';
+        assetName = '宾纳瑞视频下载器_' + version + '_aarch64.dmg';
         break;
       case 'Linux x64':
-        assetName = 'Open.Video.Downloader_' + version + '_amd64.AppImage';
+        assetName = '宾纳瑞视频下载器_' + version + '_amd64.AppImage';
         break;
       default:
         return null;
