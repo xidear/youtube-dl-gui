@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>宾纳瑞视频下载器 · Open Video Downloader</title>
+  <meta name="description" content="跨平台桌面应用，从千余网站下载视频、音频与字幕，基于 yt-dlp，无需命令行。">
+  <meta name="keywords" content="youtube-dl, open video downloader, 视频下载, 宾纳瑞, download, video, yt-dlp">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta property="og:title" content="宾纳瑞视频下载器">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://gitee.com/binnarui/binary-video-downloader">
+  <meta property="og:image" content="img/icon.png">
+  <link rel="icon" type="image/png" href="img/icon.png">
+  <link rel="apple-touch-icon" href="img/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+  <meta name="theme-color" content="#0f0f1a">
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <nav class="nav glass">
+    <a class="nav-logo" href="#">
+      <img src="img/icon.png" alt="Logo" width="36" height="36">
+      <span>宾纳瑞视频下载器</span>
+    </a>
+    <button type="button" id="hamburger" class="nav-toggle" aria-label="菜单">
+      <i class="bi bi-list"></i>
+    </button>
+    <ul id="nav-list" class="nav-list">
+      <li><a href="#about">关于</a></li>
+      <li><a href="#features">功能</a></li>
+      <li><a id="download-link" href="https://gitee.com/binnarui/binary-video-downloader/releases">下载</a></li>
+      <li><a href="https://gitee.com/binnarui/binary-video-downloader/wikis" target="_blank" rel="noopener">Wiki</a></li>
+      <li><a href="https://gitee.com/binnarui/binary-video-downloader" target="_blank" rel="noopener">Gitee</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero">
+    <section class="hero-content">
+      <img class="hero-logo" src="img/icon.png" alt="宾纳瑞视频下载器" width="120" height="120">
+      <h1 class="hero-title">宾纳瑞视频下载器</h1>
+      <p class="hero-subtitle">Open Video Downloader · youtube-dl-gui</p>
+      <p class="hero-desc">从千余网站下载视频、音频与字幕，无需命令行。</p>
+      <div class="hero-actions">
+        <button type="button" id="download-button" class="btn btn-primary">
+          <i class="bi bi-download"></i>
+          <span>下载</span>
+          <small id="download-type">Loading...</small>
+        </button>
+        <a id="ms-download-button" class="btn btn-ms" href="https://apps.microsoft.com/detail/9p53s4t9znj5?referrer=appbadge&cid=gh-pages&mode=full" style="display:none;">
+          <img src="https://get.microsoft.com/images/en-us%20dark.svg" alt="Microsoft Store" width="160" height="52">
+        </a>
+        <a id="other-versions" class="hero-other" href="https://gitee.com/binnarui/binary-video-downloader/releases">其他版本（Linux ARM、macOS Intel 等）</a>
+      </div>
+    </section>
+    <section class="hero-image">
+      <img src="img/mockup.png" alt="应用界面示意" width="720" height="auto">
+    </section>
+  </header>
+
+  <section class="cards" id="highlights">
+    <article class="card glass">
+      <i class="bi bi-film" aria-hidden="true"></i>
+      <p>支持</p>
+      <h2>1000+</h2>
+      <p>视频站点</p>
+    </article>
+    <article class="card glass">
+      <i class="bi bi-speedometer2" aria-hidden="true"></i>
+      <p>最多</p>
+      <h2>32</h2>
+      <p>并行下载</p>
+    </article>
+    <article class="card glass">
+      <i class="bi bi-gear-wide-connected" aria-hidden="true"></i>
+      <p>超过</p>
+      <h2>20+</h2>
+      <p>项设置</p>
+    </article>
+    <article class="card glass">
+      <i class="bi bi-arrow-repeat" aria-hidden="true"></i>
+      <p>应用与</p>
+      <h2>yt-dlp</h2>
+      <p>自动更新</p>
+    </article>
+  </section>
+
+  <article id="about" class="about">
+    <div class="about-inner">
+      <section class="about-text">
+        <h2>关于</h2>
+        <p>宾纳瑞视频下载器是一款跨平台桌面应用，基于 <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noopener">yt-dlp</a>，让你从数百个网站下载视频、音频、字幕与元数据，而无需使用命令行。界面简洁，支持队列、画质选择、播放列表与自动更新。</p>
+        <h3>依赖说明</h3>
+        <ul>
+          <li><strong>Windows：</strong>Microsoft Visual C++ Redistributable 2015+</li>
+          <li><strong>macOS / Linux：</strong>通常无需额外安装</li>
+        </ul>
+      </section>
+      <section class="about-screenshot">
+        <img src="img/screenshot.png" alt="应用截图" width="800" height="auto">
+      </section>
+    </div>
+  </article>
+
+  <section id="features" class="features">
+    <h2>功能概览</h2>
+    <div class="features-grid">
+      <div class="feature glass">
+        <i class="bi bi-windows"></i>
+        <h3>跨平台</h3>
+        <p>Windows、macOS、Linux 通用</p>
+      </div>
+      <div class="feature glass">
+        <i class="bi bi-music-note-beamed"></i>
+        <h3>音视频</h3>
+        <p>整视频或仅提取音频</p>
+      </div>
+      <div class="feature glass">
+        <i class="bi bi-translate"></i>
+        <h3>字幕与元数据</h3>
+        <p>自动保存字幕与视频信息</p>
+      </div>
+      <div class="feature glass">
+        <i class="bi bi-collection-play"></i>
+        <h3>播放列表</h3>
+        <p>一键下载整份播放列表</p>
+      </div>
+      <div class="feature glass">
+        <i class="bi bi-folder2"></i>
+        <h3>自定义输出</h3>
+        <p>保存路径与文件名模板</p>
+      </div>
+      <div class="feature glass">
+        <i class="bi bi-moon-stars"></i>
+        <h3>深浅色主题</h3>
+        <p>跟随系统外观</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="download-table-wrap">
+    <h2>如何选择安装包</h2>
+    <div class="table-scroll">
+      <table class="download-table">
+        <thead>
+          <tr>
+            <th>您的设备</th>
+            <th>推荐下载</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Windows</td><td><code>Open.Video.Downloader_x.x.x_x64-setup.exe</code></td></tr>
+          <tr><td>Mac（Intel）</td><td><code>Open.Video.Downloader_x.x.x_x64.dmg</code></td></tr>
+          <tr><td>Mac（Apple Silicon M1/M2…）</td><td><code>Open.Video.Downloader_x.x.x_aarch64.dmg</code></td></tr>
+          <tr><td>Linux 通用 x64</td><td><code>Open.Video.Downloader_x.x.x_amd64.AppImage</code></td></tr>
+          <tr><td>Linux 通用 aarch64</td><td><code>Open.Video.Downloader_x.x.x_aarch64.AppImage</code></td></tr>
+          <tr><td>Debian/Ubuntu x64</td><td><code>Open.Video.Downloader_x.x.x_amd64.deb</code></td></tr>
+          <tr><td>Debian/Ubuntu aarch64</td><td><code>Open.Video.Downloader_x.x.x_arm64.deb</code></td></tr>
+          <tr><td>Fedora/RHEL x64</td><td><code>Open.Video.Downloader_x.x.x-x_amd64.rpm</code></td></tr>
+          <tr><td>Fedora/RHEL aarch64</td><td><code>Open.Video.Downloader_x.x.x-x_aarch64.rpm</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <a href="https://gitee.com/binnarui/binary-video-downloader/releases">Releases</a>
+      <a href="license.html">License</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="https://gitee.com/binnarui/binary-video-downloader/issues">Contact / Issues</a>
+      <p>基于 <a href="https://github.com/jely2002/youtube-dl-gui" target="_blank" rel="noopener">Open Video Downloader</a>（Jelle Glebbeek）· 本仓库 <a href="https://gitee.com/binnarui/binary-video-downloader" target="_blank" rel="noopener">Gitee 宾纳瑞视频下载器</a></p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

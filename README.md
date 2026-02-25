@@ -1,70 +1,63 @@
-<img src="https://raw.githubusercontent.com/jely2002/youtube-dl-gui/v2.0.0/renderer/img/icon.png" alt="logo" align="left" height="100"/>
+# 宾纳瑞视频下载器（Open Video Downloader）
 
-# Open Video Downloader (youtube-dl-gui) <br> ![version badge](https://img.shields.io/github/v/release/jely2002/youtube-dl-gui?label=latest-release) ![GitHub](https://img.shields.io/github/license/jely2002/youtube-dl-gui) ![downloads](https://img.shields.io/github/downloads/jely2002/youtube-dl-gui/total) 
-[https://jely2002.github.io/youtube-dl-gui](https://jely2002.github.io/youtube-dl-gui)
+基于 [Open Video Downloader (youtube-dl-gui)](https://github.com/jely2002/youtube-dl-gui) 的桌面应用，支持从众多网站下载视频、音频、字幕与元数据（不限于 YouTube）。  
+提供简洁图形界面，无需使用命令行，底层使用 [yt-dlp](https://github.com/yt-dlp/yt-dlp)。
 
-Open Video Downloader is a simple, cross-platform desktop application that lets you download videos, audio, subtitles and metadata from hundreds of supported websites, not just YouTube.  
-It provides an easy-to-use interface around [yt-dlp](https://github.com/yt-dlp/yt-dlp) so you don’t have to touch the command line.
+## 功能概览
 
+- **跨平台**：支持 Windows、macOS、Linux
+- **音视频下载**：可下载完整视频或仅提取音频
+- **字幕与元数据**：自动保存可用字幕与视频信息
+- **画质与格式**：可选分辨率、帧率及 MP4/MKV 等输出格式
+- **播放列表**：支持整份播放列表一键下载
+- **自定义输出**：自定义保存路径与文件名模板
+- **队列与限速**：多任务队列，避免占用过高
+- **认证**：支持浏览器 Cookie、基本认证与视频密码
+- **自动更新**：应用与 yt-dlp 均可自动更新
+- **浅色/深色**：随系统主题，进度与错误提示清晰
+- **快捷键与通知**：快捷添加下载、进度通知
 
-## Features
+## 下载
 
-- **Cross-platform:** works on Windows, macOS and Linux.
-- **Audio or video downloads:** grab full videos or extract only the audio track.
-- **Subtitles and metadata:** automatically saves available captions and video information.
-- **Quality control:** choose your preferred resolution, frame rate, and output format like MP4 or MKV.
-- **Playlists:** download entire playlists in one go.
-- **Custom output:** set your download location and control filenames using presets or custom templates.
-- **Smart queueing:** OVD balances multiple downloads automatically so your computer doesn’t slow down.
-- **Authentication:** supports browser cookie files, basic auth and video passwords.
-- **Automatic updates:** both the app and yt-dlp are kept up to date automatically.
-- **Light and dark mode:** adapts to your system theme with clear progress and error handling.
-- **Shortcuts:** queue and download videos using shortcuts, stay up-to-date on progress with notifications.
+**Windows**、**macOS**、**Linux** 最新版本见 [GitHub Releases](https://github.com/jely2002/youtube-dl-gui/releases)。
 
-## Download
+下载对应平台的安装包或压缩包，按常规步骤安装即可，无需配置命令行环境。
 
-The latest versions for **Windows**, **macOS** and **Linux** are available on the  
-[GitHub Releases page](https://github.com/jely2002/youtube-dl-gui/releases).
+### 该下载哪个文件？
 
-Download the installer or archive for your platform and follow the normal installation steps.  
-No command-line setup is required.
+| 系统 | 文件名示例 |
+|------|------------|
+| **Windows** | `宾纳瑞视频下载器_x.x.x_x64-setup.exe` |
+| **Mac（Intel）** | `宾纳瑞视频下载器_x.x.x_x64.dmg` |
+| **Mac（Apple Silicon，M1/M2 等）** | `宾纳瑞视频下载器_x.x.x_aarch64.dmg` |
+| **Linux 通用（x64）** | `宾纳瑞视频下载器_x.x.x_amd64.AppImage` |
+| **Linux 通用（aarch64）** | `宾纳瑞视频下载器_x.x.x_aarch64.AppImage` |
+| **Linux Debian/Ubuntu（x64）** | `宾纳瑞视频下载器_x.x.x_amd64.deb` |
+| **Linux Debian/Ubuntu（aarch64）** | `宾纳瑞视频下载器_x.x.x_arm64.deb` |
+| **Linux Fedora/RHEL（x64）** | `宾纳瑞视频下载器_x.x.x-x_amd64.rpm` |
+| **Linux Fedora/RHEL（aarch64）** | `宾纳瑞视频下载器_x.x.x-x_aarch64.rpm` |
 
-#### What file do I download?
-| Your Computer                         | Download                                       |
-|---------------------------------------|------------------------------------------------|
-| **Windows**                           | `Open.Video.Downloader_x.x.x_x64-setup.exe`    |
-| **Mac (Intel)**                       | `Open.Video.Downloader_x.x.x_x64.dmg`          |
-| **Mac (Apple Silicon – M1, M2 … M5)** | `Open.Video.Downloader_x.x.x_aarch64.dmg`      |
-| **Linux generic (x64)**               | `Open.Video.Downloader_x.x.x_amd64.AppImage`   |
-| **Linux generic (aarch64)**           | `Open.Video.Downloader_x.x.x_aarch64.AppImage` |
-| **Linux Debian/Ubuntu (x64)**         | `Open.Video.Downloader_x.x.x_amd64.deb`        |
-| **Linux Debian/Ubuntu (aarch64)**     | `Open.Video.Downloader_x.x.x_arm64.deb`        |
-| **Linux Fedora/RHEL (x64)**           | `Open.Video.Downloader_x.x.x-x_amd64.rpm`      |
-| **Linux Fedora/RHEL (aarch64)**       | `Open.Video.Downloader_x.x.x-x_aarch64.rpm`    |
+## 技术说明
 
-## How it works
+前端使用 **Vue 3**，后端使用 **Rust** + [Tauri](https://tauri.app/)。  
+添加视频或播放列表后，应用通过 yt-dlp 获取信息、处理选项并执行下载，进度与错误会在界面中显示。
 
-Open Video Downloader uses a front-end built with Vue 3 and a Rust backend powered by [Tauri](https://tauri.app/).  
-When you add a video or playlist, the app communicates with yt-dlp to fetch information, process options and start the download.  
-The download progress and any errors are displayed in the app.
+## 参与开发
 
-## Contributing
+欢迎贡献代码。需安装 **Node.js（v24+）** 和 **Rust**。
 
-Developers are welcome to contribute.  
-You’ll need Node.js (v24+) and Rust installed.
-
-```
+```bash
 npm install
+npm run embedded:download    # 打包/运行前需下载当前平台内置程序（yt-dlp、ffmpeg 等）
 npm run tauri dev
 ```
 
-For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+打包前必须先执行 `npm run embedded:download`（当前平台）或 `npm run embedded:download:all`（全平台），否则运行时会提示「此版本未内置辅助程序」。  
+更多说明见 [CONTRIBUTING.md](./CONTRIBUTING.md) 与 [AGENTS.md](./AGENTS.md)。
 
-## License and disclaimer
+## 许可证与免责声明
 
-Open Video Downloader is distributed under the [AGPL-3.0 license](./LICENSE).
+本项目采用 [AGPL-3.0](./LICENSE) 许可证。
 
-#### Use this application responsibly
-The maintainers of Open Video Downloader cannot be held liable for misuse of this application, as stated in the AGPL-3.0 license (section 16).  
-We do not condone the use of this software to violate local laws or platform terms of service (including the DMCA).  
-Users are personally responsible for ensuring they use this software fairly and within legal boundaries.
+**请合法、负责任地使用本软件。**  
+维护者不对滥用行为承担责任（见 AGPL-3.0 第 16 条）。请勿用于违反当地法律或平台服务条款（包括 DMCA）的行为，使用责任由用户自行承担。
