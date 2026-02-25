@@ -14,7 +14,8 @@ export type BinariesMockData = {
 
 export const binaryHandlers: Record<string, IPCHandler> = {
   binaries_check: (): BinaryCheckPayload => {
-    return { tools: window.E2E.binaries?.check || [] };
+    const tools = window.E2E.binaries?.check ?? [];
+    return { tools, allTools: tools };
   },
   binaries_ensure: async (): Promise<void> => {
     if (window.E2E.binaries?.ensure) {

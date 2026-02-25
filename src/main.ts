@@ -62,6 +62,7 @@ initStores()
     console.error(e);
   })
   .finally(() => {
+    console.log('[flow] App initStores finally, setting appReady=true');
     const el = document.getElementById('preparing');
     if (el) el.style.display = 'none';
     appReady.value = true;
@@ -69,6 +70,7 @@ initStores()
     if (!__E2E__) {
       startWindowWatcher();
     }
+    console.log('[flow] App appReady set, watch will run');
   });
 
 async function initStores(): Promise<void> {

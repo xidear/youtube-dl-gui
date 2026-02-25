@@ -23,7 +23,10 @@
     "unknown": "未知",
     "confirm": "确认",
     "best": "最佳",
-    "resume": "继续"
+    "resume": "继续",
+    "close": "关闭",
+    "yes": "是",
+    "no": "否"
   },
   "layout": {
     "header": {
@@ -259,7 +262,8 @@
         "errorPrefix": "错误 - {message}",
         "report": "报告",
         "showFull": "查看日志",
-        "signIn": "登录"
+        "signIn": "登录",
+        "redownloadHelpers": "重新下载辅助程序"
       }
     },
     "card": {
@@ -704,7 +708,14 @@
       "installing": "请稍候片刻。",
       "failed": "应用程序可能无法正常工作，请报告此问题。",
       "installed": "准备就绪！"
-    }
+    },
+    "waitingNetwork": "尚未收到进度更新，可能正在等待网络连接（{seconds} 秒）…",
+    "retryBinaries": "重新下载",
+    "retryOnReconnect": "网络恢复后将自动重试",
+    "failedManualHint": "下载失败时请前往 {url} 查看手动安装说明。",
+    "failedManualHintPre": "下载失败时请前往 ",
+    "failedManualHintSuffix": " 查看手动安装说明。",
+    "manualDownloadLabel": "手动下载："
   },
   "components": {
     "base": {
@@ -834,9 +845,13 @@
         "shortMessage": "频道不可用",
         "message": "提供此内容的频道已无法访问。"
       },
+      "ytDlpNotFound": {
+        "shortMessage": "找不到 yt-dlp",
+        "message": "yt-dlp 未安装或未找到，无法下载视频。请点击「重新下载辅助程序」安装。"
+      },
       "ffmpegNotFound": {
         "shortMessage": "找不到 ffmpeg",
-        "message": "需要 ffmpeg 始得转码为 mp3 或 mp4。"
+        "message": "需要 ffmpeg 始得转码为 mp3 或 mp4。请重新下载辅助程序。"
       },
       "ffmpegFailed": {
         "shortMessage": "ffmpeg 失败",
@@ -900,8 +915,27 @@
     "viewLicenses": "查看授权",
     "version": "版本: {version}",
     "redownloadBinaries": "重新下载辅助程序",
+    "redownloadPreparing": "正在准备，即将跳转到安装页…",
     "redownloadBinariesSuccess": "辅助程序已重新下载完成。",
     "redownloadBinariesError": "重新下载失败: {error}",
+    "helpersLink": "辅助软件",
+    "helpersTitle": "辅助软件",
+    "helpersDescription": "管理 yt-dlp、ffmpeg 等辅助程序。可在此重新下载或手动安装。",
+    "helpersColumnName": "名称",
+    "helpersColumnVersion": "版本",
+    "helpersColumnInstalled": "是否已下载",
+    "helpersColumnActions": "操作",
+    "helpersDirectDownload": "直接下载",
+    "helpersProxyDownload": "代理下载",
+    "helpersManualDownload": "手动下载",
+    "helpersEmpty": "暂无辅助程序数据",
+    "helpersManualTitle": "手动下载说明",
+    "helpersManualInstructions": "点击下方链接在浏览器中打开并下载，或复制链接后手动打开浏览器下载。\n下载完成后请解压到下方目录中。",
+    "helpersManualUrlLabel": "下载地址：",
+    "helpersManualDirLabel": "解压目标目录：",
+    "helpersManualCopyUrl": "复制链接",
+    "helpersManualOpenDir": "打开目录",
+    "helpersManualCopyDone": "已复制到剪贴板",
     "links": {
       "source": "项目主页"
     }

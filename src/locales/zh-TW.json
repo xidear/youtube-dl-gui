@@ -23,7 +23,8 @@
     "unknown": "未知",
     "confirm": "確認",
     "best": "最佳",
-    "resume": "繼續"
+    "resume": "繼續",
+    "close": "關閉"
   },
   "layout": {
     "header": {
@@ -900,6 +901,7 @@
     "viewLicenses": "檢視授權",
     "version": "版本: {version}",
     "redownloadBinaries": "重新下載輔助程式",
+    "redownloadPreparing": "正在準備，即將跳轉到安裝頁…",
     "redownloadBinariesSuccess": "輔助程式已重新下載完成。",
     "redownloadBinariesError": "重新下載失敗: {error}",
     "links": {

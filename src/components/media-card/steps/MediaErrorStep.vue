@@ -22,6 +22,7 @@
       </button>
       <router-link :to="{ name: 'group.logs', params: { groupId: group.id } }" class="btn btn-subtle">{{ t('media.steps.error.showFull') }}</router-link>
       <router-link v-if="signInRequired" :to="{ name: 'authentication' }" class="btn btn-subtle">{{ t('media.steps.error.signIn') }}</router-link>
+      <button v-if="showRedownloadHelper" @click="goToRedownload" class="btn btn-primary">{{ t('media.steps.error.redownloadHelpers') }}</button>
     </div>
   </div>
 </template>
@@ -34,9 +35,14 @@ import { useI18n } from 'vue-i18n';
 import { useMediaDiagnosticsStore } from '../../../stores/media/diagnostics.ts';
 import { useDiagnostic } from '../../../composables/useDiagnostic.ts';
 import { ProgressStyle } from '../../../tauri/types/progress.ts';
+import { useRouter } from 'vue-router';
+import { invoke } from '@tauri-apps/api/core';
+import { useBinariesStore } from '../../../stores/binaries';
 
 const i18n = useI18n();
 const t = i18n.t;
+const router = useRouter();
+const binariesStore = useBinariesStore();
 
 const { group } = defineProps({
   group: {
@@ -68,7 +74,7 @@ const error = computed(() => {
     if (lastFatal.value.internal) {
       diagnostic.id = lastFatal.value.id;
       diagnostic.message = lastFatal.value.message;
-      diagnostic.code = 'unknown';
+      diagnostic.code = lastFatal.value.code ?? 'unknown';
       diagnostic.component = 'runner';
       diagnostic.raw = lastFatal.value.details ?? 'unknown';
       diagnostic.level = 'error';
@@ -84,4 +90,16 @@ const error = computed(() => {
 const { diagnosticDisplay, report, isReportable, isReporting, hasReported } = useDiagnostic(error, true);
 const signInRequired = computed(() => error.value.code.includes('signIn'));
 
+const BINARY_NOT_FOUND_CODES = ['ytDlpNotFound', 'ffmpegNotFound'];
+const showRedownloadHelper = computed(() => BINARY_NOT_FOUND_CODES.includes(error.value.code));
+
+async function goToRedownload() {
+  try {
+    const names = await invoke<string[]>('binaries_list');
+    binariesStore.seedTools(names);
+    await router.push({ path: '/install', query: { forceBinaries: '1' } });
+  } catch (_) {
+    await router.push({ path: '/install', query: { forceBinaries: '1' } });
+  }
+}
 </script>

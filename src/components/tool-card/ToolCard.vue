@@ -29,6 +29,9 @@
       </section>
       <p v-if="!hasError" class="mt-2">
         {{ t('common.divide', { left: formatBytes(tool.received), right: formatBytes(tool.total) }) }}
+        <span v-if="tool.speed != null && tool.percent < 100" class="ml-2 text-base-content/70">
+          {{ formatBytesPerSec(tool.speed) }}
+        </span>
       </p>
       <details v-else class="collapse collapse-arrow bg-base-200 list-none">
         <summary class="collapse-title font-semibold py-2 px-4">
@@ -36,19 +39,34 @@
         </summary>
         <pre class="p-4"><code class="text-wrap">{{ tool.error }}</code></pre>
       </details>
+      <p v-if="showManualLink && hasError && manualInfo" class="mt-2">
+        {{ t('install.manualDownloadLabel') }}
+        <a :href="manualInfo.url" target="_blank" rel="noopener" class="link">{{ manualInfo.url }}</a>
+      </p>
+      <base-button
+        v-if="canRetry"
+        type="button"
+        class="btn-primary btn-sm mt-2 whitespace-nowrap"
+        @click="emit('retry')"
+      >
+        {{ t('common.retry') }}
+      </base-button>
     </div>
   </article>
 </template>
 <script setup lang="ts">
-import { formatBytes } from '../../helpers/units';
+import { formatBytes, formatBytesPerSec } from '../../helpers/units';
 import { CheckIcon, XMarkIcon } from '@heroicons/vue/24/solid';
-import { computed, PropType } from 'vue';
-import { BinaryProgress } from '../../tauri/types/binaries';
+import { computed, PropType, watch, ref } from 'vue';
+import { invoke } from '@tauri-apps/api/core';
+import { BinaryProgress, ManualToolInfo } from '../../tauri/types/binaries';
 import { useI18n } from 'vue-i18n';
+import BaseButton from '../base/BaseButton.vue';
 
 const { t } = useI18n();
+const emit = defineEmits<{ retry: [] }>();
 
-const { tool } = defineProps({
+const { tool, canRetry, name, showManualLink } = defineProps({
   name: {
     type: String,
     required: true,
@@ -57,9 +75,32 @@ const { tool } = defineProps({
     type: Object as PropType<BinaryProgress>,
     required: true,
   },
+  /** 是否处于需重试状态（由页面逻辑注入，如强制重新下载时全部为 true） */
+  canRetry: {
+    type: Boolean,
+    default: false,
+  },
+  /** 为 true 时，若该工具有 error 则显示该工具的手动下载链接 */
+  showManualLink: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const hasError = computed(() => !!tool.error);
+
+const manualInfo = ref<ManualToolInfo | null>(null);
+
+async function fetchManualInfo() {
+  if (!name || !showManualLink || !hasError.value) return;
+  try {
+    manualInfo.value = await invoke<ManualToolInfo>('binaries_tool_manual_info', { name });
+  } catch {
+    manualInfo.value = null;
+  }
+}
+
+watch([() => name, () => hasError.value, () => showManualLink], () => { void fetchManualInfo(); }, { immediate: true });
 </script>
 
 <style scoped>

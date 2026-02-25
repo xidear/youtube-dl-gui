@@ -20,7 +20,7 @@ ffprobe (b6.1.1)
   License: GPL-3.0-or-later
   Project: https://ffmpeg.org/
 
-deno (v2.6.10)
+deno (v2.7.1)
   License: (license unknown)
   Project: (no project URL)
 

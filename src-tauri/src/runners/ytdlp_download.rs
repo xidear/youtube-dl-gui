@@ -4,7 +4,7 @@ use crate::models::{
 };
 use crate::parsers::ytdlp_error::{DiagnosticMatcher, YtdlpErrorParser};
 use crate::parsers::ytdlp_progress::YtdlpProgressParser;
-use crate::runners::ytdlp_runner::{YtdlpCommandEvent, YtdlpRunner};
+use crate::runners::ytdlp_runner::{is_spawn_error_file_not_found, YtdlpCommandEvent, YtdlpRunner};
 use crate::scheduling::download_pipeline::DownloadEntry;
 use crate::scheduling::group_state::subscribe_group;
 use std::fmt;
@@ -57,7 +57,33 @@ pub async fn run_ytdlp_download(
   let error_parser = YtdlpErrorParser::new(&entry.id, &entry.group_id, matcher);
   let mut progress_parser = YtdlpProgressParser::new(&entry.id, &entry.group_id);
 
-  let (mut rx, child) = runner.spawn().map_err(YtdlpDownloadError::SpawnFailed)?;
+  let (mut rx, child) = match runner.spawn() {
+    Ok(ok) => ok,
+    Err(e) => {
+      if is_spawn_error_file_not_found(&e) {
+        let _ = app.emit(
+          "media_fatal",
+          MediaFatalPayload::binary_not_found(
+            entry.group_id.clone(),
+            entry.id.clone(),
+            "ytDlpNotFound".into(),
+            "yt-dlp not found. Please re-download helper tools from Settings.".into(),
+          ),
+        );
+      } else {
+        let _ = app.emit(
+          "media_fatal",
+          MediaFatalPayload::internal(
+            entry.group_id.clone(),
+            entry.id.clone(),
+            format!("Download failed for group {}: {}", entry.group_id, e),
+            Some(e.clone()),
+          ),
+        );
+      }
+      return Err(YtdlpDownloadError::SpawnFailed(e));
+    }
+  };
   let mut cancel_rx = subscribe_group(&entry.group_id);
 
   loop {

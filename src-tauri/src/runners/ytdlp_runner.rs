@@ -336,6 +336,17 @@ impl YtdlpChild {
   }
 }
 
+/// 判断 spawn/run 失败是否因系统找不到可执行文件（如 yt-dlp 未安装）。
+/// 用于前端展示「请重新下载辅助程序」引导。
+pub fn is_spawn_error_file_not_found(err: &str) -> bool {
+  let lower = err.to_lowercase();
+  lower.contains("os error 2")
+    || lower.contains("enoent")
+    || lower.contains("no such file")
+    || lower.contains("找不到")
+    || lower.contains("not found")
+}
+
 fn spawn_reader<R: io::Read + Send + 'static>(
   reader: R,
   tx: UnboundedSender<YtdlpCommandEvent>,

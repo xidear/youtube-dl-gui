@@ -5,6 +5,7 @@ use crate::binaries::binaries_extractor::{
   extract_tar_bz2, extract_tar_bz2_bundle, extract_zip, extract_zip_bundle,
 };
 use crate::binaries::binaries_state::CheckResult;
+use crate::binaries::binaries_state::{HelperToolStatus, ManualToolInfo};
 use crate::binaries::embedded;
 use crate::paths::PathsManager;
 use fs_extra::dir::{move_dir, CopyOptions};
@@ -19,12 +20,17 @@ use tokio::io::AsyncWriteExt;
 /// GitHub 直连前缀
 const GITHUB_RAW: &str = "https://github.com/";
 
-/// 内置 GH 代理列表（直连失败后依次尝试）
+/// 内置 GH 代理列表（仅当 use_proxy 时使用）
 const BUILTIN_GH_PROXIES: &[&str] = &[
-  "https://ghfast.top",
-  "https://ghproxy.com",
-  "https://mirror.ghproxy.com",
+  "https://gh-proxy.org",
+  "https://hk.gh-proxy.org",
+  "https://cdn.gh-proxy.org",
+  "https://edgeone.gh-proxy.org",
 ];
+
+/// 每个下载 URL 的超时时间（秒），避免断网时长时间卡死。
+/// 目前有「直连 + 最多 3 个代理」，10 秒一轮，单个工具最坏也就 ~40 秒。
+const DOWNLOAD_TIMEOUT_SECS: u64 = 10;
 
 type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -111,7 +117,7 @@ impl BinariesManager {
   pub fn new(app: &AppHandle<Wry>) -> Self {
     let paths_manager = app.state::<PathsManager>();
     let client = Client::builder()
-      .timeout(std::time::Duration::from_secs(600))
+      .timeout(std::time::Duration::from_secs(DOWNLOAD_TIMEOUT_SECS))
       .build()
       .unwrap_or_else(|_| Client::new());
     Self {
@@ -121,10 +127,10 @@ impl BinariesManager {
     }
   }
 
-  /// 生成下载 URL 列表：先直连，再（若为 GitHub）依次为环境变量代理、内置代理。
-  fn download_urls(&self, url: &str) -> Vec<String> {
+  /// 生成下载 URL 列表：use_proxy 为 false 时仅直连；为 true 时先直连，再（若为 GitHub）依次为环境变量代理、内置代理。
+  fn download_urls(&self, url: &str, use_proxy: bool) -> Vec<String> {
     let mut out = vec![url.to_string()];
-    if !url.starts_with(GITHUB_RAW) {
+    if !use_proxy || !url.starts_with(GITHUB_RAW) {
       return out;
     }
     if let Ok(env_proxy) = std::env::var("BINARIES_GH_PROXY") {
@@ -210,18 +216,32 @@ impl BinariesManager {
     let meta_path = bin.join("metadata.json");
     let meta = self.load_metadata(&meta_path).await?;
     if meta.is_locked {
-      return Ok(CheckResult { tools: Vec::new() });
+      return Ok(CheckResult {
+        tools: Vec::new(),
+        all_tools: Vec::new(),
+      });
     }
     let arch = Self::current_platform();
 
     let manifest = self.get_manifest()?;
+    let all_tools: Vec<String> = manifest
+      .tools
+      .iter()
+      .filter(|(_, info)| Self::select_file(&info.files, &arch).is_some())
+      .map(|(name, _)| name.clone())
+      .collect();
+
     let plan = self.build_plan(&manifest, &meta, &arch, None).await?;
     let tools: Vec<String> = plan.iter().map(|(n, _)| (*n).to_string()).collect();
 
-    Ok(CheckResult { tools })
+    Ok(CheckResult { tools, all_tools })
   }
 
-  pub async fn ensure(&self, allow: Option<&[String]>) -> Result<(), AnyError> {
+  pub async fn ensure(
+    &self,
+    allow: Option<&[String]>,
+    use_proxy: bool,
+  ) -> Result<(), AnyError> {
     let bin = &self.bin_dir;
     tokio::fs::create_dir_all(bin).await?;
 
@@ -242,7 +262,10 @@ impl BinariesManager {
     let mut failures: Vec<ToolError> = Vec::new();
 
     for (name, info) in plan {
-      match self.install_single_tool(bin, &arch, name, info).await {
+      match self
+        .install_single_tool(bin, &arch, name, info, use_proxy)
+        .await
+      {
         Ok(()) => {
           meta.versions.insert(name.to_string(), info.version.clone());
           successes.push(name.to_string());
@@ -291,7 +314,7 @@ impl BinariesManager {
     meta.versions.clear();
     meta.is_locked = false;
     self.save_metadata(&meta_path, &meta).await?;
-    self.ensure(None).await
+    self.ensure(None, true).await
   }
 
   async fn install_single_tool(
@@ -300,6 +323,7 @@ impl BinariesManager {
     arch: &str,
     name: &str,
     info: &ToolInfo,
+    use_proxy: bool,
   ) -> Result<(), ToolError> {
     let Some((_key, file)) = Self::select_file(&info.files, arch) else {
       return self.fail_stage(
@@ -328,26 +352,36 @@ impl BinariesManager {
       },
     );
 
-    let urls = self.download_urls(&file.url);
+    let urls = self.download_urls(&file.url, use_proxy);
     let mut last_err: Option<AnyError> = None;
     for url in &urls {
-      match self
-        .download_and_verify(
+      // 对单个 URL 增加显式超时，避免网络不通时长时间无响应。
+      match tokio::time::timeout(
+        std::time::Duration::from_secs(DOWNLOAD_TIMEOUT_SECS),
+        self.download_and_verify(
           name,
           url,
           &file.sha256,
           &dest,
           file.entry.as_deref(),
           file.bundle.as_ref(),
-        )
-        .await
+        ),
+      )
+      .await
       {
-        Ok(()) => {
+        Ok(Ok(())) => {
           last_err = None;
           break;
         }
-        Err(e) => {
+        Ok(Err(e)) => {
           last_err = Some(e);
+          continue;
+        }
+        Err(_) => {
+          // 超时：清理临时文件，记录错误后尝试下一个 URL / 代理。
+          let _ = fs::remove_file(dest.with_extension("tmp")).await;
+          let _ = fs::remove_file(&dest).await;
+          last_err = Some("download timeout".into());
           continue;
         }
       }
@@ -409,6 +443,73 @@ impl BinariesManager {
   fn get_manifest(&self) -> Result<Manifest, AnyError> {
     let manifest: Manifest = serde_json::from_slice(embedded::EMBEDDED_MANIFEST)?;
     Ok(manifest)
+  }
+
+  /// 列出 manifest 中声明的所有工具名称（前端用于展示完整列表）。
+  pub fn list_tools(&self) -> Result<Vec<String>, AnyError> {
+    let manifest = self.get_manifest()?;
+    Ok(manifest.tools.keys().cloned().collect())
+  }
+
+  /// 辅助软件页用：带版本与是否已安装的列表（只读 manifest + meta，不修改现有逻辑）。
+  pub async fn list_tools_with_status(&self) -> Result<Vec<HelperToolStatus>, AnyError> {
+    let manifest = self.get_manifest()?;
+    let arch = Self::current_platform();
+    let meta_path = self.bin_dir.join("metadata.json");
+    let meta = self.load_metadata(&meta_path).await?;
+    let mut out = Vec::new();
+    for (name, info) in &manifest.tools {
+      if Self::select_file(&info.files, &arch).is_none() {
+        continue;
+      }
+      let version_ok = meta.versions.get(name) == Some(&info.version);
+      let canonical = self.canonical_path(name).map_err(|e| {
+        Box::new(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())) as AnyError
+      })?;
+      let exists = tokio::fs::metadata(&canonical).await.is_ok();
+      out.push(HelperToolStatus {
+        name: name.clone(),
+        version: info.version.clone(),
+        installed: version_ok && exists,
+      });
+    }
+    Ok(out)
+  }
+
+  /// 移除指定工具的已安装记录与文件，便于下次 ensure 时重新下载。
+  pub async fn remove_tool(&self, name: &str) -> Result<(), AnyError> {
+    let meta_path = self.bin_dir.join("metadata.json");
+    let mut meta = self.load_metadata(&meta_path).await?;
+    meta.versions.remove(name);
+    self.save_metadata(&meta_path, &meta).await?;
+    let canonical = self.canonical_path(name).map_err(|e| {
+      Box::new(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())) as AnyError
+    })?;
+    let _ = tokio::fs::remove_file(&canonical).await;
+    Ok(())
+  }
+
+  /// 手动下载用：当前平台的下载 URL 与目标目录。
+  pub fn tool_manual_info(&self, name: &str) -> Result<ManualToolInfo, AnyError> {
+    let manifest = self.get_manifest()?;
+    let info = manifest.tools.get(name).ok_or_else(|| {
+      Box::new(std::io::Error::new(
+        std::io::ErrorKind::NotFound,
+        "tool not found",
+      )) as AnyError
+    })?;
+    let arch = Self::current_platform();
+    let (_key, file) = Self::select_file(&info.files, &arch).ok_or_else(|| {
+      Box::new(std::io::Error::new(
+        std::io::ErrorKind::NotFound,
+        "no file for current platform",
+      )) as AnyError
+    })?;
+    let bin_dir = self.bin_dir.to_string_lossy().to_string();
+    Ok(ManualToolInfo {
+      url: file.url.clone(),
+      bin_dir,
+    })
   }
 
   /// 从 url 下载并校验 sha256，再按类型解压/重命名（与上游一致）。

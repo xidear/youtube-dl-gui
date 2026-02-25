@@ -33,10 +33,17 @@ useDragDrop();
 const ENABLE_UPDATE_CHECK = false;
 
 const checkTools = async () => {
+  console.log('[flow] App.checkTools entry');
   const toolsToEnsure = await binariesStore.check();
+  console.log('[flow] App.checkTools after check() toolsToEnsure=', toolsToEnsure, 'length=', toolsToEnsure.length);
   if (toolsToEnsure.length > 0) {
+    console.log('[flow] App.checkTools pushing to /install');
     await router.push('/install');
+    console.log('[flow] App.checkTools push done');
+  } else {
+    console.log('[flow] App.checkTools not pushing (toolsToEnsure.length === 0)');
   }
+  console.log('[flow] App.checkTools done');
 };
 
 const checkUpdates = async () => {
@@ -51,9 +58,11 @@ const checkUpdates = async () => {
 watch(
   () => appReady.value,
   (ready) => {
+    console.log('[flow] App watch appReady ready=', ready);
     if (!ready) return;
     nextTick(() => {
       requestAnimationFrame(() => {
+        console.log('[flow] App watch calling checkTools()');
         void checkTools();
         try {
           void strongholdStore.loadStatus();
@@ -63,6 +72,7 @@ watch(
         if (ENABLE_UPDATE_CHECK) {
           void checkUpdates();
         }
+        console.log('[flow] App watch requestAnimationFrame done');
       });
     });
   },

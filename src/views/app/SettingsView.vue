@@ -35,10 +35,9 @@
             <button
               type="button"
               class="btn btn-soft btn-sm"
-              :disabled="isRedownloading"
-              @click="redownloadBinaries"
+              @click="goRedownloadBinaries()"
             >
-              {{ isRedownloading ? t('common.pleaseWait') : t('about.redownloadBinaries') }}
+              {{ t('about.redownloadBinaries') }}
             </button>
           </div>
           <p>{{ t('about.credit') }}</p>
@@ -64,6 +63,7 @@ import { computed, ref, toRaw } from 'vue';
 import { useToastStore } from '../../stores/toast';
 import { useI18n } from 'vue-i18n';
 import { useTheme } from '../../composables/useTheme.ts';
+import { useRouter } from 'vue-router';
 import SettingsPerformance from '../../components/settings/SettingsPerformance.vue';
 import SettingsOutput from '../../components/settings/SettingsOutput.vue';
 import SettingsAppearance from '../../components/settings/SettingsAppearance.vue';
@@ -76,13 +76,15 @@ import SettingsUpdate from '../../components/settings/SettingsUpdate.vue';
 import SettingsInput from '../../components/settings/SettingsInput.vue';
 import SettingsSystem from '../../components/settings/SettingsSystem.vue';
 import SettingsNotifications from '../../components/settings/SettingsNotifications.vue';
-import { invoke } from '@tauri-apps/api/core';
+import { useInstallPanelStore } from '../../stores/installPanel';
 
 const settingsStore = useSettingsStore();
 const toastStore = useToastStore();
+const installPanelStore = useInstallPanelStore();
 const { openInternalPath } = useOpener();
 const { setTheme } = useTheme();
 const { t } = useI18n();
+const router = useRouter();
 
 const draft = ref<Settings>(structuredClone<Settings>(toRaw(settingsStore.settings)));
 
@@ -130,21 +132,12 @@ const sections = [
 
 const appVersion = __APP_VERSION__;
 
-const isRedownloading = ref(false);
-
-const redownloadBinaries = async () => {
-  isRedownloading.value = true;
-  try {
-    await invoke('binaries_redownload');
-    toastStore.showToast(t('about.redownloadBinariesSuccess'), { style: 'success' });
-  } catch (e) {
-    toastStore.showToast(t('about.redownloadBinariesError', { error: String(e) }), { style: 'error' });
-  } finally {
-    isRedownloading.value = false;
-  }
-};
-
 const openLicenses = async () => {
   await openInternalPath('licenses/3rdpartylicenses.txt');
 };
+
+function goRedownloadBinaries() {
+  installPanelStore.setFromRedownload(true);
+  router.push('/install?redownload=1');
+}
 </script>

@@ -1,6 +1,19 @@
 (function () {
   'use strict';
 
+  function httpGet(url) {
+    return new Promise(function (resolve) {
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+          resolve(xhr.status === 200 ? xhr.responseText : null);
+        }
+      };
+      xhr.open('GET', url, true);
+      xhr.send(null);
+    });
+  }
+
   function getOS() {
     var platform = window.navigator.platform;
     var userAgent = window.navigator.userAgent;
@@ -21,6 +34,31 @@
       return 'Linux x64';
     }
     return 'other';
+  }
+
+  function getAssetDownload(os, release) {
+    if (!release.assets || !Array.isArray(release.assets)) return null;
+    var version = release.tag_name.replace(/^v/, '');
+    var assetName;
+    switch (os) {
+      case 'Windows':
+        assetName = '宾纳瑞视频下载器_' + version + '_x64-setup.exe';
+        break;
+      case 'MacOS Silicon':
+        assetName = '宾纳瑞视频下载器_' + version + '_aarch64.dmg';
+        break;
+      case 'Linux x64':
+        assetName = '宾纳瑞视频下载器_' + version + '_amd64.AppImage';
+        break;
+      default:
+        return null;
+    }
+    for (var i = 0; i < release.assets.length; i++) {
+      if (release.assets[i].name === assetName) {
+        return release.assets[i].browser_download_url;
+      }
+    }
+    return null;
   }
 
   function setOtherVersionsText(os) {
@@ -46,6 +84,7 @@
     setOtherVersionsText(os);
     setupMicrosoftButton(os);
 
+    var releaseUrl = 'https://gitee.com/api/v5/repos/binnarui/binary-video-downloader/releases/latest';
     var fallbackUrl = 'https://gitee.com/binnarui/binary-video-downloader/releases';
 
     var typeEl = document.getElementById('download-type');
@@ -54,12 +93,43 @@
 
     if (!btn || !link) return;
 
-    if (typeEl) {
-      typeEl.textContent = os === 'other' ? '' : '适用于 ' + os;
-      if (os === 'other') typeEl.style.display = 'none';
-    }
-    btn.onclick = function () { window.location.href = fallbackUrl; };
-    link.setAttribute('href', fallbackUrl);
+    httpGet(releaseUrl).then(function (data) {
+      if (!data) {
+        if (typeEl) typeEl.textContent = '适用于 ' + os;
+        btn.onclick = function () { window.location.href = fallbackUrl; };
+        link.setAttribute('href', fallbackUrl);
+        return;
+      }
+
+      var release;
+      try {
+        release = JSON.parse(data);
+      } catch (e) {
+        if (typeEl) typeEl.textContent = '适用于 ' + os;
+        btn.onclick = function () { window.location.href = fallbackUrl; };
+        link.setAttribute('href', fallbackUrl);
+        return;
+      }
+
+      if (os === 'other') {
+        if (typeEl) typeEl.style.display = 'none';
+        btn.onclick = function () { window.location.href = fallbackUrl; };
+        link.setAttribute('href', fallbackUrl);
+        return;
+      }
+
+      var url = getAssetDownload(os, release);
+      if (typeEl) {
+        typeEl.textContent = release.tag_name + ' · ' + os;
+      }
+      if (url) {
+        btn.onclick = function () { window.location.href = url; };
+        link.setAttribute('href', url);
+      } else {
+        btn.onclick = function () { window.location.href = fallbackUrl; };
+        link.setAttribute('href', fallbackUrl);
+      }
+    });
   }
 
   function initNav() {

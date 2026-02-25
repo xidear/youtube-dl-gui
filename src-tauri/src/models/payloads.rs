@@ -57,6 +57,8 @@ pub struct MediaFatalPayload {
   pub internal: bool,
   pub message: String,
   pub details: Option<String>,
+  #[serde(skip_serializing_if = "Option::is_none")]
+  pub code: Option<String>,
   pub timestamp: u128,
 }
 
@@ -69,6 +71,7 @@ impl MediaFatalPayload {
       internal: true,
       message,
       details,
+      code: None,
       timestamp: std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis())
@@ -84,6 +87,29 @@ impl MediaFatalPayload {
       internal: false,
       message,
       details: None,
+      code: None,
+      timestamp: std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0),
+    }
+  }
+
+  /// 辅助程序未找到（如 yt-dlp 未安装），用于前端展示引导重新下载的文案与按钮。
+  pub fn binary_not_found(
+    group_id: String,
+    id: String,
+    code: String,
+    message: String,
+  ) -> Self {
+    Self {
+      id,
+      group_id,
+      exit_code: None,
+      internal: true,
+      message,
+      details: None,
+      code: Some(code),
       timestamp: std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis())

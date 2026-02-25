@@ -25,8 +25,8 @@ import { pipeline } from 'node:stream/promises';
 // @ts-expect-error lzma-native 无类型定义
 import lzma from 'lzma-native';
 
-const MANIFEST_URL =
-  'https://jely2002.github.io/youtube-dl-gui/manifest/manifest.json';
+const MANIFEST_URL
+  = 'https://jely2002.github.io/youtube-dl-gui/manifest/manifest.json';
 const EMBEDDED_ROOT = path.join(process.cwd(), 'src-tauri', 'src', 'embedded');
 
 /** GitHub 原始前缀，用于被镜像替换 */
@@ -39,7 +39,7 @@ const MINIMAL_TOOLS = ['yt-dlp', 'ffmpeg', 'ffprobe', 'AtomicParsley'];
 function getMirrorPrefix(): string | undefined {
   const env = process.env.EMBEDDED_MIRROR;
   if (env && env.trim()) return env.trim();
-  const arg = process.argv.find((a) => a.startsWith('--mirror='));
+  const arg = process.argv.find(a => a.startsWith('--mirror='));
   if (arg) return arg.slice('--mirror='.length).trim();
   return undefined;
 }
@@ -115,10 +115,10 @@ function downloadWithSha256(
     client
       .get(url, (res) => {
         if (
-          res.statusCode &&
-          res.statusCode >= 300 &&
-          res.statusCode < 400 &&
-          res.headers.location
+          res.statusCode
+          && res.statusCode >= 300
+          && res.statusCode < 400
+          && res.headers.location
         ) {
           res.destroy();
           return downloadWithSha256(
@@ -186,7 +186,7 @@ async function fetchManifest(): Promise<Manifest> {
     client.get(MANIFEST_URL, (res) => {
       if (res.statusCode === 302 || res.statusCode === 301) {
         const loc = res.headers.location;
-        if (loc) return fetch(loc).then((r) => r.json()).then(resolve).catch(reject);
+        if (loc) return fetch(loc).then(r => r.json()).then(resolve).catch(reject);
       }
       const chunks: Buffer[] = [];
       res.on('data', (chunk: Buffer) => chunks.push(chunk));
@@ -209,11 +209,11 @@ async function main() {
   const minimal = args.includes('--minimal');
   const noUpdateManifest = args.includes('--no-update-manifest');
   const explicitPlatforms = args.filter(
-    (a) =>
-      a !== '--all' &&
-      a !== '--minimal' &&
-      a !== '--no-update-manifest' &&
-      !a.startsWith('--mirror='),
+    a =>
+      a !== '--all'
+      && a !== '--minimal'
+      && a !== '--no-update-manifest'
+      && !a.startsWith('--mirror='),
   );
 
   const mirrorPrefix = getMirrorPrefix();
@@ -264,7 +264,7 @@ async function main() {
 
   const toolsToFetch = minimal
     ? Object.fromEntries(
-        MINIMAL_TOOLS.filter((k) => manifest.tools[k]).map((k) => [k, manifest.tools[k]]),
+        MINIMAL_TOOLS.filter(k => manifest.tools[k]).map(k => [k, manifest.tools[k]]),
       )
     : manifest.tools;
   if (minimal) {

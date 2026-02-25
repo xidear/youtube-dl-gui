@@ -3,7 +3,7 @@ use crate::models::download::FormatOptions;
 use crate::models::{MediaDiagnosticPayload, MediaFatalPayload, ParsedMedia, TrackType};
 use crate::parsers::ytdlp_error::{DiagnosticMatcher, YtdlpErrorParser};
 use crate::parsers::ytdlp_info::parse_ytdlp_info;
-use crate::runners::ytdlp_runner::YtdlpRunner;
+use crate::runners::ytdlp_runner::{is_spawn_error_file_not_found, YtdlpRunner};
 use std::borrow::Cow;
 use std::fmt;
 use tauri::{AppHandle, Emitter, Manager};
@@ -74,15 +74,27 @@ pub async fn run_ytdlp_info_fetch(
   let output = match runner.output().await {
     Ok(o) => o,
     Err(e) => {
-      let _ = app.emit(
-        "media_fatal",
-        MediaFatalPayload::with_exit(
-          group_id.clone(),
-          id.clone(),
-          1,
-          format!("Failed to spawn yt-dlp: {e}"),
-        ),
-      );
+      if is_spawn_error_file_not_found(&e) {
+        let _ = app.emit(
+          "media_fatal",
+          MediaFatalPayload::binary_not_found(
+            group_id.clone(),
+            id.clone(),
+            "ytDlpNotFound".into(),
+            "yt-dlp not found. Please re-download helper tools from Settings.".into(),
+          ),
+        );
+      } else {
+        let _ = app.emit(
+          "media_fatal",
+          MediaFatalPayload::with_exit(
+            group_id.clone(),
+            id.clone(),
+            1,
+            format!("Failed to spawn yt-dlp: {e}"),
+          ),
+        );
+      }
       return Err(YtdlpInfoFetchError::RunnerFailed(e));
     }
   };

@@ -19,7 +19,7 @@
 
 ## 下载
 
-**Windows**、**macOS**、**Linux** 最新版本见 [GitHub Releases](https://github.com/jely2002/youtube-dl-gui/releases)。
+**Windows**、**macOS**、**Linux** 最新版本见 [Releases](https://gitee.com/binnarui/binary-video-downloader/releases)。
 
 下载对应平台的安装包或压缩包，按常规步骤安装即可，无需配置命令行环境。
 
@@ -48,11 +48,10 @@
 
 ```bash
 npm install
-npm run embedded:download    # 打包/运行前需下载当前平台内置程序（yt-dlp、ffmpeg 等）
 npm run tauri dev
 ```
 
-打包前必须先执行 `npm run embedded:download`（当前平台）或 `npm run embedded:download:all`（全平台），否则运行时会提示「此版本未内置辅助程序」。  
+构建需要 `src-tauri/src/embedded/manifest.json`，仓库已包含；若缺失可执行 `npm run embedded:download` 生成。辅助程序（yt-dlp、ffmpeg 等）在**首次启动时在线下载**，无需预先下载。
 更多说明见 [CONTRIBUTING.md](./CONTRIBUTING.md) 与 [AGENTS.md](./AGENTS.md)。
 
 ## 许可证与免责声明

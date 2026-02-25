@@ -23,7 +23,10 @@
     "unknown": "unknown",
     "confirm": "Confirm",
     "best": "Best",
-    "resume": "Resume"
+    "resume": "Resume",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No"
   },
   "layout": {
     "header": {
@@ -259,7 +262,8 @@
         "errorPrefix": "Error - {message}",
         "report": "Report",
         "showFull": "View logs",
-        "signIn": "Sign in"
+        "signIn": "Sign in",
+        "redownloadHelpers": "Re-download helper tools"
       }
     },
     "card": {
@@ -704,7 +708,14 @@
       "installing": "We're getting everything ready.",
       "failed": "The app may not work as expected, please report this.",
       "installed": "Ready to download!"
-    }
+    },
+    "waitingNetwork": "No progress yet, possibly waiting for network ({seconds}s)…",
+    "retryBinaries": "Re-download",
+    "retryOnReconnect": "Will retry automatically when network is back",
+    "failedManualHint": "If download failed, visit {url} for manual installation instructions.",
+    "failedManualHintPre": "If download failed, visit ",
+    "failedManualHintSuffix": " for manual installation instructions.",
+    "manualDownloadLabel": "Manual download: "
   },
   "components": {
     "base": {
@@ -834,9 +845,13 @@
         "shortMessage": "Channel unavailable",
         "message": "The channel hosting this content is no longer accessible."
       },
+      "ytDlpNotFound": {
+        "shortMessage": "yt-dlp not found",
+        "message": "yt-dlp is missing or could not be found. Click \"Re-download helper tools\" to install."
+      },
       "ffmpegNotFound": {
         "shortMessage": "ffmpeg not found",
-        "message": "Transcoding to mp3 or mp4 requires ffmpeg."
+        "message": "Transcoding to mp3 or mp4 requires ffmpeg. Please re-download helper tools."
       },
       "ffmpegFailed": {
         "shortMessage": "ffmpeg failed",
@@ -900,8 +915,27 @@
     "viewLicenses": "View licenses",
     "version": "Version: {version}",
     "redownloadBinaries": "Re-download helper tools",
+    "redownloadPreparing": "Preparing, redirecting to install page…",
     "redownloadBinariesSuccess": "Helper tools re-downloaded.",
     "redownloadBinariesError": "Re-download failed: {error}",
+    "helpersLink": "Helper tools",
+    "helpersTitle": "Helper tools",
+    "helpersDescription": "Manage yt-dlp, ffmpeg and other helper binaries. Re-download or install manually here.",
+    "helpersColumnName": "Name",
+    "helpersColumnVersion": "Version",
+    "helpersColumnInstalled": "Installed",
+    "helpersColumnActions": "Actions",
+    "helpersDirectDownload": "Direct download",
+    "helpersProxyDownload": "Proxy download",
+    "helpersManualDownload": "Manual download",
+    "helpersEmpty": "No helper tools data.",
+    "helpersManualTitle": "Manual download",
+    "helpersManualInstructions": "Open the link below in your browser to download, or copy the link and open it manually.\nAfter downloading, extract the archive to the directory below.",
+    "helpersManualUrlLabel": "Download URL: ",
+    "helpersManualDirLabel": "Extract to directory: ",
+    "helpersManualCopyUrl": "Copy link",
+    "helpersManualOpenDir": "Open directory",
+    "helpersManualCopyDone": "Copied to clipboard",
     "links": {
       "source": "Project home"
     }
