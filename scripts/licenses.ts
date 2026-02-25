@@ -9,6 +9,16 @@ const NPM_FILE = join(OUTPUT_DIR, 'licenses-npm.json');
 const RUST_FILE = join(OUTPUT_DIR, 'licenses-rust.txt');
 const OUTPUT_FILE = join(OUTPUT_DIR, '3rdpartylicenses.txt');
 
+/** 将 license-checker 输出的绝对路径转为基于当前项目目录的相对路径，避免跨机器/路径硬编码 */
+function resolveLicensePath(licenseFile: string): string {
+  const cwd = process.cwd();
+  const nodeModulesIdx = licenseFile.indexOf('node_modules');
+  if (nodeModulesIdx !== -1) {
+    return join(cwd, licenseFile.slice(nodeModulesIdx));
+  }
+  return licenseFile.startsWith(cwd) ? licenseFile : join(cwd, licenseFile);
+}
+
 type LicenseInfo = {
   name?: string;
   version?: string;
@@ -78,7 +88,8 @@ function generateNpmLicenses() {
 
       if (info.licenseFile && !licenseTextMap.has(lic)) {
         try {
-          const text = readFileSync(info.licenseFile, 'utf8');
+          const pathToRead = resolveLicensePath(info.licenseFile);
+          const text = readFileSync(pathToRead, 'utf8');
           licenseTextMap.set(lic, text.trim());
         } catch (e) {
           console.warn(`[licenses] could not read license file ${info.licenseFile}: ${e}.`);
