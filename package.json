@@ -12,7 +12,7 @@
     "build": "npm run build:app && npm run build:isolation",
     "build:app": "vue-tsc --noEmit && vite build",
     "build:isolation": "vue-tsc --noEmit && vite build --config vite.config.isolation.ts",
-    "embedded:check": "npx tsx scripts/check-embedded.ts",
+    "embedded:check": "node scripts/check-embedded.js",
     "pretauri": "npm run embedded:check",
     "tauri": "tauri",
     "lint": "eslint",
