@@ -5,7 +5,14 @@
  * 用法:
  *   npx tsx scripts/download-embedded.ts              # 仅当前平台
  *   npx tsx scripts/download-embedded.ts --all        # 所有平台
+ *   npx tsx scripts/download-embedded.ts --minimal  # 仅核心工具（安装包约 <100MB）
+ *   npx tsx scripts/download-embedded.ts --no-update-manifest  # 使用本地 manifest 固定版本，不拉取上游
  *   npx tsx scripts/download-embedded.ts windows-x86_64 linux-x86_64  # 指定平台
+ *
+ * 大陆镜像（环境变量或 --mirror）：
+ *   EMBEDDED_MIRROR=https://ghproxy.com/https://github.com/  npx tsx scripts/download-embedded.ts
+ *   或  npx tsx scripts/download-embedded.ts --mirror=https://ghproxy.com/https://github.com/
+ * 将把 GitHub 上的文件经该前缀代理下载。也可使用 gh-proxy.com、mirror.ghproxy.com 等。
  */
 
 import fs from 'node:fs';
@@ -14,10 +21,33 @@ import path from 'node:path';
 import https from 'node:https';
 import http from 'node:http';
 import { createHash } from 'node:crypto';
+import { pipeline } from 'node:stream/promises';
+// @ts-expect-error lzma-native 无类型定义
+import lzma from 'lzma-native';
 
 const MANIFEST_URL =
   'https://jely2002.github.io/youtube-dl-gui/manifest/manifest.json';
 const EMBEDDED_ROOT = path.join(process.cwd(), 'src-tauri', 'src', 'embedded');
+
+/** GitHub 原始前缀，用于被镜像替换 */
+const GITHUB_BASE = 'https://github.com/';
+
+/** 使用 --minimal 时只嵌入这些工具（不含 deno），安装包可控制在约 65MB */
+const MINIMAL_TOOLS = ['yt-dlp', 'ffmpeg', 'ffprobe', 'AtomicParsley'];
+
+/** 若设置，将把以 GITHUB_BASE 开头的下载 URL 替换为该镜像前缀（大陆加速） */
+function getMirrorPrefix(): string | undefined {
+  const env = process.env.EMBEDDED_MIRROR;
+  if (env && env.trim()) return env.trim();
+  const arg = process.argv.find((a) => a.startsWith('--mirror='));
+  if (arg) return arg.slice('--mirror='.length).trim();
+  return undefined;
+}
+
+function resolveDownloadUrl(url: string, mirrorPrefix: string | undefined): string {
+  if (!mirrorPrefix || !url.startsWith(GITHUB_BASE)) return url;
+  return url.replace(GITHUB_BASE, mirrorPrefix);
+}
 
 interface FileEntry {
   url: string;
@@ -37,6 +67,8 @@ interface ToolEntry {
 }
 
 interface Manifest {
+  /** 主程序版本，与 package.json / tauri.conf.json 一致，用于固定辅助软件版本对应关系 */
+  appVersion?: string;
   generatedAt: string;
   tools: Record<string, ToolEntry>;
 }
@@ -135,6 +167,19 @@ function downloadWithSha256(
   });
 }
 
+/** 使用 XZ 极限压缩（preset 9）将文件压缩为 .xz，并删除原文件。 */
+async function compressToXzAndReplace(filePath: string): Promise<void> {
+  const xzPath = `${filePath}.xz`;
+  const compressor = lzma.createCompressor({ preset: 9 });
+  await pipeline(
+    fs.createReadStream(filePath),
+    compressor,
+    fs.createWriteStream(xzPath),
+  );
+  await fsp.rm(filePath, { force: true });
+  console.log(`[download-embedded] Compressed to ${path.basename(xzPath)}`);
+}
+
 async function fetchManifest(): Promise<Manifest> {
   const client = getClient(MANIFEST_URL);
   return new Promise((resolve, reject) => {
@@ -161,7 +206,20 @@ async function fetchManifest(): Promise<Manifest> {
 async function main() {
   const args = process.argv.slice(2);
   const all = args.includes('--all');
-  const explicitPlatforms = args.filter((a) => a !== '--all');
+  const minimal = args.includes('--minimal');
+  const noUpdateManifest = args.includes('--no-update-manifest');
+  const explicitPlatforms = args.filter(
+    (a) =>
+      a !== '--all' &&
+      a !== '--minimal' &&
+      a !== '--no-update-manifest' &&
+      !a.startsWith('--mirror='),
+  );
+
+  const mirrorPrefix = getMirrorPrefix();
+  if (mirrorPrefix) {
+    console.log('[download-embedded] Using mirror for GitHub:', mirrorPrefix);
+  }
 
   const platformsToFetch: string[] = all
     ? [...PLATFORMS]
@@ -169,10 +227,54 @@ async function main() {
       ? explicitPlatforms
       : [detectPlatformKey()];
 
-  console.log('[download-embedded] Fetching manifest from', MANIFEST_URL);
-  const manifest = await fetchManifest();
+  let manifest: Manifest;
 
-  // 保持 manifest 与线上一致
+  if (noUpdateManifest) {
+    const manifestPath = path.join(EMBEDDED_ROOT, 'manifest.json');
+    try {
+      const raw = await fsp.readFile(manifestPath, 'utf8');
+      manifest = JSON.parse(raw) as Manifest;
+      if (!manifest.appVersion) {
+        throw new Error(
+          'Local manifest must contain appVersion (fix version correspondence with main app).',
+        );
+      }
+      console.log(
+        '[download-embedded] Using local manifest (appVersion=%s), tools: %s',
+        manifest.appVersion,
+        Object.keys(manifest.tools).join(', '),
+      );
+    } catch (e) {
+      console.error('[download-embedded] --no-update-manifest requires existing', manifestPath);
+      throw e;
+    }
+  } else {
+    console.log('[download-embedded] Fetching manifest from', MANIFEST_URL);
+    manifest = await fetchManifest();
+    const pkgPath = path.join(process.cwd(), 'package.json');
+    try {
+      const pkg = JSON.parse(await fsp.readFile(pkgPath, 'utf8')) as { version?: string };
+      if (pkg.version) {
+        manifest.appVersion = pkg.version;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  const toolsToFetch = minimal
+    ? Object.fromEntries(
+        MINIMAL_TOOLS.filter((k) => manifest.tools[k]).map((k) => [k, manifest.tools[k]]),
+      )
+    : manifest.tools;
+  if (minimal) {
+    manifest = { ...manifest, tools: toolsToFetch as Manifest['tools'] };
+    console.log(
+      '[download-embedded] Minimal mode: only',
+      Object.keys(toolsToFetch).join(', '),
+    );
+  }
+
   const manifestPath = path.join(EMBEDDED_ROOT, 'manifest.json');
   await fsp.mkdir(EMBEDDED_ROOT, { recursive: true });
   await fsp.writeFile(
@@ -186,7 +288,7 @@ async function main() {
     const platformDir = path.join(EMBEDDED_ROOT, platformKey);
     await fsp.mkdir(platformDir, { recursive: true });
 
-    for (const [toolName, tool] of Object.entries(manifest.tools)) {
+    for (const [toolName, tool] of Object.entries(toolsToFetch)) {
       const file = tool.files[platformKey];
       if (!file) {
         console.log(
@@ -196,10 +298,13 @@ async function main() {
       }
 
       const destPath = path.join(platformDir, toolName);
+      const downloadUrl = resolveDownloadUrl(file.url, mirrorPrefix);
       console.log(
-        `[download-embedded] Downloading ${toolName} (${platformKey}) from ${file.url}`,
+        `[download-embedded] Downloading ${toolName} (${platformKey}) from ${downloadUrl === file.url ? file.url : '[mirror] ' + downloadUrl}`,
       );
-      await downloadWithSha256(file.url, file.sha256, destPath);
+      await downloadWithSha256(downloadUrl, file.sha256, destPath);
+      console.log(`[download-embedded] Compressing ${toolName} with XZ (max)...`);
+      await compressToXzAndReplace(destPath);
     }
   }
 

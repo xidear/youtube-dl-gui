@@ -27,18 +27,19 @@
       </template>
       <base-fieldset :legend="t('about.title')" label="">
         <div class="flex flex-col gap-2">
-          <div class="flex gap-2 mb-2 w-full">
-            <a href="https://github.com/jely2002/youtube-dl-gui" class="link link-subtle" target="_blank" rel="noopener">
-              {{ t('about.links.github') }}
+          <div class="flex gap-2 mb-2 w-full flex-wrap items-center">
+            <a href="https://gitee.com/binnarui/binary-video-downloader" class="link link-subtle" target="_blank" rel="noopener">
+              {{ t('about.links.source') }}
             </a>
             <hr class="divider divider-horizontal mx-0 border-none">
-            <a href="https://github.com/jely2002/youtube-dl-gui/wiki" class="link" target="_blank" rel="noopener">
-              {{ t('about.links.wiki') }}
-            </a>
-            <hr class="divider divider-horizontal mx-0 border-none">
-            <a href="https://github.com/jely2002/youtube-dl-gui/issues/new?template=bug_report.md" class="link" target="_blank" rel="noopener">
-              {{ t('about.links.reportABug') }}
-            </a>
+            <button
+              type="button"
+              class="btn btn-soft btn-sm"
+              :disabled="isRedownloading"
+              @click="redownloadBinaries"
+            >
+              {{ isRedownloading ? t('common.pleaseWait') : t('about.redownloadBinaries') }}
+            </button>
           </div>
           <p>{{ t('about.credit') }}</p>
           <div class="flex gap-2 items-center">
@@ -75,6 +76,7 @@ import SettingsUpdate from '../../components/settings/SettingsUpdate.vue';
 import SettingsInput from '../../components/settings/SettingsInput.vue';
 import SettingsSystem from '../../components/settings/SettingsSystem.vue';
 import SettingsNotifications from '../../components/settings/SettingsNotifications.vue';
+import { invoke } from '@tauri-apps/api/core';
 
 const settingsStore = useSettingsStore();
 const toastStore = useToastStore();
@@ -127,6 +129,20 @@ const sections = [
 ];
 
 const appVersion = __APP_VERSION__;
+
+const isRedownloading = ref(false);
+
+const redownloadBinaries = async () => {
+  isRedownloading.value = true;
+  try {
+    await invoke('binaries_redownload');
+    toastStore.showToast(t('about.redownloadBinariesSuccess'), { style: 'success' });
+  } catch (e) {
+    toastStore.showToast(t('about.redownloadBinariesError', { error: String(e) }), { style: 'error' });
+  } finally {
+    isRedownloading.value = false;
+  }
+};
 
 const openLicenses = async () => {
   await openInternalPath('licenses/3rdpartylicenses.txt');

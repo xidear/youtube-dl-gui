@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { useBinariesStore } from '../../stores/binaries';
 import { ArrowRightIcon } from '@heroicons/vue/24/solid';
-import { computed, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 import BaseSubNav from '../../components/base/BaseSubNav.vue';
 import BaseButton from '../../components/base/BaseButton.vue';
 import { useRouter } from 'vue-router';
@@ -48,8 +48,13 @@ const isInstalling = ref(true);
 const waitTime = ref(5);
 const installPartialFail = ref(false);
 
-onMounted(async () => {
-  await ensureBinaries();
+onMounted(() => {
+  // 等安装页（含「正在安装必要工具…」）先渲染一帧再开始释放，避免白屏/卡顿、用户能看到 loading
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      void ensureBinaries();
+    });
+  });
 });
 
 const ensureBinaries = async () => {

@@ -25,25 +25,35 @@ export const useBinariesStore = defineStore('binaries', () => {
     await invoke<void>('binaries_ensure', { tools: toEnsure ?? Object.keys(tools.value) });
   }
 
+  function ensureToolEntry(toolName: string) {
+    if (!tools.value[toolName]) {
+      tools.value[toolName] = { total: 0, received: 0, percent: 0 };
+    }
+  }
+
   function processBinaryDownloadStart(payload: BinaryDownloadStartPayload) {
+    ensureToolEntry(payload.tool);
     const tool = tools.value[payload.tool];
     tool.version = payload.version;
   }
 
   function processBinaryDownloadProgress(payload: BinaryDownloadProgressPayload) {
+    ensureToolEntry(payload.tool);
     const tool = tools.value[payload.tool];
     tool.total = payload.total;
     tool.received = payload.received;
-    tool.percent = Math.round(tool.received / tool.total * 100);
+    tool.percent = payload.total > 0 ? Math.round((payload.received / payload.total) * 100) : 0;
   }
 
   function processBinaryDownloadComplete(payload: BinaryDownloadCompletePayload) {
+    ensureToolEntry(payload.tool);
     const tool = tools.value[payload.tool];
     tool.received = tool.total;
     tool.percent = 100;
   }
 
   function processBinaryDownloadError(payload: BinaryDownloadErrorPayload) {
+    ensureToolEntry(payload.tool);
     const tool = tools.value[payload.tool];
     tool.error = `[${payload.stage}] ${payload.error}`;
   }

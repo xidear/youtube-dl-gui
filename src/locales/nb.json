@@ -895,14 +895,15 @@
   "about": {
     "appName": "Binnarui Video Downloader",
     "title": "Om",
-    "credit": "Laget med ❤ av jely2002 & bidragsytere",
+    "credit": "Basert på åpen kildekode-prosjekter.",
     "poweredBy": "Drevet av åpen kildekode:",
     "viewLicenses": "Vis lisenser",
     "version": "Versjon: {version}",
+    "redownloadBinaries": "Last ned hjelpeverktøy på nytt",
+    "redownloadBinariesSuccess": "Hjelpeverktøy lastet ned.",
+    "redownloadBinariesError": "Nedlasting feilet: {error}",
     "links": {
-      "github": "GitHub",
-      "wiki": "Wiki",
-      "reportABug": "Rapporter en feil"
+      "source": "Prosjektside"
     }
   }
 }

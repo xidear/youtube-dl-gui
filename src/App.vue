@@ -10,13 +10,14 @@
 
 <script setup lang="ts">
 import TheToaster from './components/TheToaster.vue';
-import { inject, onMounted } from 'vue';
+import { inject, watch } from 'vue';
 import { useBinariesStore } from './stores/binaries';
 import { useRouter } from 'vue-router';
 import { useUpdaterStore } from './stores/updater';
 import { useStrongholdStore } from './stores/stronghold';
 import { useDragDrop } from './composables/useDragDrop.ts';
 import { useI18n } from 'vue-i18n';
+import { nextTick } from 'vue';
 
 const { t } = useI18n();
 const appReady = inject<{ value: boolean }>('appReady', { value: false });
@@ -46,18 +47,27 @@ const checkUpdates = async () => {
   }
 };
 
-// 等窗口渲染完成后再检查；需释放时跳安装页且仅在该页释放，避免启动卡死
-onMounted(() => {
-  void checkTools();
-  try {
-    void strongholdStore.loadStatus();
-  } catch (e) {
-    console.error(e);
-  }
-  if (ENABLE_UPDATE_CHECK) {
-    void checkUpdates();
-  }
-});
+/** 等窗口与「正在准备…」渲染完成后再检查；需释放时再跳安装页并在该页释放，避免启动卡死、用户能看到 loading */
+watch(
+  () => appReady.value,
+  (ready) => {
+    if (!ready) return;
+    nextTick(() => {
+      requestAnimationFrame(() => {
+        void checkTools();
+        try {
+          void strongholdStore.loadStatus();
+        } catch (e) {
+          console.error(e);
+        }
+        if (ENABLE_UPDATE_CHECK) {
+          void checkUpdates();
+        }
+      });
+    });
+  },
+  { immediate: true },
+);
 </script>
 
 <style scoped>

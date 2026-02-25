@@ -893,16 +893,17 @@
     }
   },
   "about": {
-    "appName": "宾纳瑞视频下载器",
+    "appName": "Binnarui Video Downloader",
     "title": "關於",
-    "credit": "由 jely2002 與貢獻者用 ❤ 製作",
+    "credit": "基於開源專案製作。",
     "poweredBy": "採用開放原始碼:",
     "viewLicenses": "檢視授權",
     "version": "版本: {version}",
+    "redownloadBinaries": "重新下載輔助程式",
+    "redownloadBinariesSuccess": "輔助程式已重新下載完成。",
+    "redownloadBinariesError": "重新下載失敗: {error}",
     "links": {
-      "github": "GitHub",
-      "wiki": "Wiki",
-      "reportABug": "回報錯誤"
+      "source": "專案首頁"
     }
   }
 }

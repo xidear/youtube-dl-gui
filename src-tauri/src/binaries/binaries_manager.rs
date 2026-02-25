@@ -9,20 +9,22 @@ use crate::binaries::embedded;
 use crate::paths::PathsManager;
 use fs_extra::dir::{move_dir, CopyOptions};
 use indexmap::IndexMap;
+use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Emitter, Error, Manager, Wry};
 use tokio::fs;
 use tokio::io::AsyncWriteExt;
-use tokio::time::{sleep, Duration};
 
-/// 未内置辅助程序时的错误提示（面向最终用户）。
-const ERR_NO_EMBEDDED: &str =
-  "此版本未内置辅助程序，无法使用。请从官方渠道获取已打包的完整版本。";
+/// GitHub 直连前缀
+const GITHUB_RAW: &str = "https://github.com/";
 
-/// 释放写入限速：约 50 MiB/s，避免一次性写满磁盘导致卡死
-const RELEASE_MAX_BYTES_PER_SEC: u64 = 50 * 1024 * 1024;
-const RELEASE_CHUNK_SIZE: usize = 1024 * 1024;
+/// 内置 GH 代理列表（直连失败后依次尝试）
+const BUILTIN_GH_PROXIES: &[&str] = &[
+  "https://ghfast.top",
+  "https://ghproxy.com",
+  "https://mirror.ghproxy.com",
+];
 
 type AnyError = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -102,15 +104,39 @@ struct ToolComplete {
 pub struct BinariesManager {
   app: AppHandle<Wry>,
   bin_dir: PathBuf,
+  client: Client,
 }
 
 impl BinariesManager {
   pub fn new(app: &AppHandle<Wry>) -> Self {
     let paths_manager = app.state::<PathsManager>();
+    let client = Client::builder()
+      .timeout(std::time::Duration::from_secs(600))
+      .build()
+      .unwrap_or_else(|_| Client::new());
     Self {
       app: app.clone(),
       bin_dir: paths_manager.bin_dir().clone(),
+      client,
     }
+  }
+
+  /// 生成下载 URL 列表：先直连，再（若为 GitHub）依次为环境变量代理、内置代理。
+  fn download_urls(&self, url: &str) -> Vec<String> {
+    let mut out = vec![url.to_string()];
+    if !url.starts_with(GITHUB_RAW) {
+      return out;
+    }
+    if let Ok(env_proxy) = std::env::var("BINARIES_GH_PROXY") {
+      let custom = env_proxy.trim_end_matches('/').to_string();
+      if !custom.is_empty() {
+        out.push(format!("{}/{}", custom, url));
+      }
+    }
+    for p in BUILTIN_GH_PROXIES {
+      out.push(format!("{}/{}", p, url));
+    }
+    out
   }
 
   fn canonical_path(&self, tool: &str) -> Result<PathBuf, Error> {
@@ -178,12 +204,8 @@ impl BinariesManager {
   }
 
   pub async fn check(&self) -> Result<CheckResult, AnyError> {
-    if !embedded::has_embedded_binaries() {
-      return Err(ERR_NO_EMBEDDED.into());
-    }
-
     let bin = &self.bin_dir;
-    tokio::fs::create_dir_all(&bin).await?;
+    tokio::fs::create_dir_all(bin).await?;
 
     let meta_path = bin.join("metadata.json");
     let meta = self.load_metadata(&meta_path).await?;
@@ -200,12 +222,8 @@ impl BinariesManager {
   }
 
   pub async fn ensure(&self, allow: Option<&[String]>) -> Result<(), AnyError> {
-    if !embedded::has_embedded_binaries() {
-      return Err(ERR_NO_EMBEDDED.into());
-    }
-
     let bin = &self.bin_dir;
-    tokio::fs::create_dir_all(&bin).await?;
+    tokio::fs::create_dir_all(bin).await?;
 
     let meta_path = bin.join("metadata.json");
     let mut meta = self.load_metadata(&meta_path).await?;
@@ -226,7 +244,6 @@ impl BinariesManager {
     for (name, info) in plan {
       match self.install_single_tool(bin, &arch, name, info).await {
         Ok(()) => {
-          // only update meta + successes on fully successful install
           meta.versions.insert(name.to_string(), info.version.clone());
           successes.push(name.to_string());
         }
@@ -267,6 +284,16 @@ impl BinariesManager {
     Ok(())
   }
 
+  /// 清空已记录版本并重新下载全部辅助程序（全部覆盖）。
+  pub async fn redownload_all(&self) -> Result<(), AnyError> {
+    let meta_path = self.bin_dir.join("metadata.json");
+    let mut meta = self.load_metadata(&meta_path).await?;
+    meta.versions.clear();
+    meta.is_locked = false;
+    self.save_metadata(&meta_path, &meta).await?;
+    self.ensure(None).await
+  }
+
   async fn install_single_tool(
     &self,
     bin: &Path,
@@ -301,27 +328,40 @@ impl BinariesManager {
       },
     );
 
-    let Some(bytes) = embedded::embedded_tool_bytes(name) else {
-      return self.fail_stage(
-        name,
-        &info.version,
-        "embedded",
-        "此版本未内置该辅助程序，请使用已正确打包的完整版本。".to_string(),
-      );
-    };
+    let urls = self.download_urls(&file.url);
+    let mut last_err: Option<AnyError> = None;
+    for url in &urls {
+      match self
+        .download_and_verify(
+          name,
+          url,
+          &file.sha256,
+          &dest,
+          file.entry.as_deref(),
+          file.bundle.as_ref(),
+        )
+        .await
+      {
+        Ok(()) => {
+          last_err = None;
+          break;
+        }
+        Err(e) => {
+          last_err = Some(e);
+          continue;
+        }
+      }
+    }
 
-    if let Err(e) = self
-      .release_embedded_and_verify(
-        name,
-        bytes,
-        &file.sha256,
-        &dest,
-        file.entry.as_deref(),
-        file.bundle.as_ref(),
-      )
-      .await
-    {
-      return self.fail_stage(name, &info.version, "release_verify", e.to_string());
+    if let Some(_e) = last_err {
+      let canonical = self.canonical_path(name).unwrap_or_else(|_| self.bin_dir.join(name));
+      let manual_msg = format!(
+        "所有下载方式均失败。\n\n请手动操作：\n1. 在浏览器中打开：{}\n2. 下载后解压，将 {} 放到目录：\n{}",
+        file.url,
+        canonical.display(),
+        self.bin_dir.display()
+      );
+      return self.fail_stage(name, &info.version, "download_verify", manual_msg);
     }
 
     let canonical = self.canonical_path(name).map_err(|e| {
@@ -365,29 +405,36 @@ impl BinariesManager {
     })
   }
 
-  /// 仅使用内置 manifest，不进行任何网络拉取。
+  /// 使用内置 manifest（主程序与辅助软件版本对应），不拉取网络。
   fn get_manifest(&self) -> Result<Manifest, AnyError> {
     let manifest: Manifest = serde_json::from_slice(embedded::EMBEDDED_MANIFEST)?;
     Ok(manifest)
   }
 
-  /// 限速写入文件并发送进度，避免一次性写满磁盘导致卡死。
-  async fn write_throttled(
+  /// 从 url 下载并校验 sha256，再按类型解压/重命名（与上游一致）。
+  async fn download_and_verify(
     &self,
     tool: &str,
+    url: &str,
+    sha256_expected: &str,
     dest: &Path,
-    bytes: &[u8],
+    entry: Option<&str>,
+    bundle: Option<&BundleInfo>,
   ) -> Result<(), AnyError> {
-    let total = bytes.len() as u64;
-    let mut file = fs::File::create(dest).await?;
+    let mut res = self.client.get(url).send().await?;
+    res.error_for_status_ref()?;
+
+    let tmp = dest.with_extension("tmp");
+    let mut file = fs::File::create(&tmp).await?;
+    let mut hasher = Sha256::new();
+
+    let total = res.content_length().unwrap_or(0);
     let mut received: u64 = 0;
-    let mut pos = 0;
-    while pos < bytes.len() {
-      let end = (pos + RELEASE_CHUNK_SIZE).min(bytes.len());
-      let chunk = &bytes[pos..end];
-      file.write_all(chunk).await?;
+
+    while let Some(chunk) = res.chunk().await? {
       received += chunk.len() as u64;
-      pos = end;
+      hasher.update(&chunk);
+      file.write_all(&chunk).await?;
       let _ = self.app.emit(
         "binary_download_progress",
         ToolProgress {
@@ -396,36 +443,17 @@ impl BinariesManager {
           received,
         },
       );
-      if end < bytes.len() {
-        let chunk_len = chunk.len() as u64;
-        let sleep_ms = (chunk_len * 1000) / RELEASE_MAX_BYTES_PER_SEC;
-        sleep(Duration::from_millis(sleep_ms.max(1))).await;
-      }
     }
     file.flush().await?;
-    Ok(())
-  }
+    drop(file);
 
-  /// 将内置二进制写入 dest，校验 sha256 后按类型解压/重命名到 bin 目录。
-  async fn release_embedded_and_verify(
-    &self,
-    tool: &str,
-    bytes: &[u8],
-    sha256_expected: &str,
-    dest: &Path,
-    entry: Option<&str>,
-    bundle: Option<&BundleInfo>,
-  ) -> Result<(), AnyError> {
-    let mut hasher = Sha256::new();
-    hasher.update(bytes);
     let hash = hex::encode(hasher.finalize());
     if hash != sha256_expected {
+      let _ = fs::remove_file(&tmp).await;
       return Err("sha256 mismatch".into());
     }
 
-    self
-      .write_throttled(tool, dest, bytes)
-      .await?;
+    fs::rename(&tmp, dest).await?;
 
     let canonical = self.canonical_path(tool)?;
     let parent = dest.parent().unwrap();
@@ -434,7 +462,7 @@ impl BinariesManager {
       match ext {
         "zip" => {
           if let Some(b) = bundle {
-            let (dir, _entry_abs) = extract_zip_bundle(
+            let (dir, _) = extract_zip_bundle(
               dest,
               parent,
               b.folder_name.as_deref(),
@@ -443,9 +471,7 @@ impl BinariesManager {
             )
             .await?;
             fs::remove_file(dest).await?;
-            self
-              .hoist_bundle_contents_into_bin(&dir, &canonical)
-              .await?;
+            self.hoist_bundle_contents_into_bin(&dir, &canonical).await?;
           } else {
             extract_zip(tool, canonical.clone(), dest, parent, entry).await?;
             fs::remove_file(dest).await?;
@@ -453,7 +479,7 @@ impl BinariesManager {
         }
         "bz2" => {
           if let Some(b) = bundle {
-            let (dir, _entry_abs) = extract_tar_bz2_bundle(
+            let (dir, _) = extract_tar_bz2_bundle(
               dest,
               parent,
               b.folder_name.as_deref(),
@@ -462,9 +488,7 @@ impl BinariesManager {
             )
             .await?;
             fs::remove_file(dest).await?;
-            self
-              .hoist_bundle_contents_into_bin(&dir, &canonical)
-              .await?;
+            self.hoist_bundle_contents_into_bin(&dir, &canonical).await?;
           } else {
             extract_tar_bz2(tool, canonical.clone(), dest, parent, entry).await?;
             fs::remove_file(dest).await?;

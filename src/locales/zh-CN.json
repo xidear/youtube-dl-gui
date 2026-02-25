@@ -895,14 +895,15 @@
   "about": {
     "appName": "宾纳瑞视频下载器",
     "title": "关于",
-    "credit": "由 jely2002 与贡献者用 ❤ 制作",
+    "credit": "基于开源项目制作。",
     "poweredBy": "采用开放源代码:",
     "viewLicenses": "查看授权",
     "version": "版本: {version}",
+    "redownloadBinaries": "重新下载辅助程序",
+    "redownloadBinariesSuccess": "辅助程序已重新下载完成。",
+    "redownloadBinariesError": "重新下载失败: {error}",
     "links": {
-      "github": "GitHub",
-      "wiki": "Wiki",
-      "reportABug": "报告错误"
+      "source": "项目主页"
     }
   }
 }

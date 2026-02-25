@@ -1,5 +1,6 @@
 {
-  "generatedAt": "2026-02-24T00:38:18.451Z",
+  "appVersion": "1.0.0",
+  "generatedAt": "2026-02-25T00:41:48.278Z",
   "tools": {
     "yt-dlp": {
       "version": "2026.02.21",
@@ -83,7 +84,7 @@
         },
         "windows-aarch64": {
           "url": "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip",
-          "sha256": "7908d7de5366099e16bcf77c0480e169ec0b8c01dde587a06f666af49d338cbd",
+          "sha256": "0ea4ab553daae6dcb0bcde62a482d8a73969392f8010a0cef846aa0f5815cbee",
           "entry": "ffmpeg-master-latest-winarm64-gpl/bin/ffmpeg.exe"
         },
         "darwin-x86_64": {
@@ -113,7 +114,7 @@
         },
         "windows-aarch64": {
           "url": "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-winarm64-gpl.zip",
-          "sha256": "7908d7de5366099e16bcf77c0480e169ec0b8c01dde587a06f666af49d338cbd",
+          "sha256": "0ea4ab553daae6dcb0bcde62a482d8a73969392f8010a0cef846aa0f5815cbee",
           "entry": "ffmpeg-master-latest-winarm64-gpl/bin/ffprobe.exe"
         },
         "darwin-x86_64": {

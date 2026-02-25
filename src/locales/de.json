@@ -895,14 +895,15 @@
   "about": {
     "appName": "Binnarui Video Downloader",
     "title": "Über",
-    "credit": "Mit ❤ erstellt von jely2002 & Mitwirkenden",
+    "credit": "Basierend auf Open-Source-Projekten.",
     "poweredBy": "Unterstützt durch Open Source:",
     "viewLicenses": "Lizenzen anzeigen",
     "version": "Version: {version}",
+    "redownloadBinaries": "Hilfsprogramme erneut herunterladen",
+    "redownloadBinariesSuccess": "Hilfsprogramme wurden heruntergeladen.",
+    "redownloadBinariesError": "Download fehlgeschlagen: {error}",
     "links": {
-      "github": "GitHub",
-      "wiki": "Wiki",
-      "reportABug": "Fehler melden"
+      "source": "Projektseite"
     }
   }
 }
